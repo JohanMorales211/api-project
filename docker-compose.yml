@@ -1,0 +1,46 @@
+version: '3'
+services:
+
+  db-reservations:
+    container_name: db-reservation
+    image: postgres:15.2
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pg_reservation
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - 8781:8781
+    expose:
+      - 8781
+    command: -p 8781
+
+
+  db-hosting:
+    container_name: db-hosting
+    image: postgres:15.2
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pg_hosting
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - 8782:8782
+    expose:
+      - 8782
+    command: -p 8782
+
+
+  db-airline:
+    container_name: db-airline
+    image: postgres:15.2
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pg_airline
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - 8783:8783
+    expose:
+      - 8783
+    command: -p 8783
