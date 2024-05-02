@@ -1,6 +1,5 @@
 package com.parcial.airline_service.servicies;
 
-
 import com.parcial.airline_service.dto.DestinyDTO;
 import com.parcial.airline_service.models.Destiny;
 
@@ -14,7 +13,7 @@ public interface DestinyService {
 
     public List<Destiny> findAll();
 
-    public Destiny update(DestinyDTO destinyDTO);
+    public Destiny update(Long id, DestinyDTO destinyDTO);
 
     public Destiny factory(DestinyDTO destinyDTO);
 

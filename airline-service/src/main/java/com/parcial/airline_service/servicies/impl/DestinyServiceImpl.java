@@ -1,6 +1,7 @@
 package com.parcial.airline_service.servicies.impl;
 
 import com.parcial.airline_service.dto.DestinyDTO;
+import com.parcial.airline_service.exceptions.DestinoNoEncontradoException;
 import com.parcial.airline_service.models.Destiny;
 import com.parcial.airline_service.reposotories.DestinyRepository;
 import com.parcial.airline_service.servicies.DestinyService;
@@ -15,31 +16,39 @@ import java.util.Optional;
 public class DestinyServiceImpl implements DestinyService {
 
     private final DestinyRepository destinyRepository;
+
     @Override
-    public Destiny save(DestinyDTO destinyDTO){
-
+    public Destiny save(DestinyDTO destinyDTO) {
         Optional<Destiny> guardado = destinyRepository.findByName(destinyDTO.getName());
-
-        if(guardado.isPresent()){
-            throw new RuntimeException("El destino con el nombre"+destinyDTO.getName()+" ya existe");
+        if (guardado.isPresent()) {
+            throw new RuntimeException("El destino con el nombre" + destinyDTO.getName() + " ya existe");
         }
-
         return destinyRepository.save(factory(destinyDTO));
     }
+
     @Override
-    public Destiny findByName(String name){
+    public Destiny findByName(String name) {
         return destinyRepository.findByName(name).orElse(null);
     }
+
     @Override
-    public List<Destiny> findAll(){
+    public List<Destiny> findAll() {
         return destinyRepository.findAll();
     }
+
     @Override
-    public Destiny update(DestinyDTO destinyDTO){
-        return destinyRepository.save( factory(destinyDTO) );
+    public Destiny update(Long id, DestinyDTO destinyDTO) {
+        Destiny existingDestiny = destinyRepository.findById(id)
+                .orElseThrow(() -> new DestinoNoEncontradoException("Destiny no encontrado con id: " + id));
+
+        existingDestiny.setName(destinyDTO.getName());
+        existingDestiny.setDescription(destinyDTO.getDescription());
+
+        return destinyRepository.save(existingDestiny);
     }
+
     @Override
-    public Destiny factory(DestinyDTO destinyDTO){
+    public Destiny factory(DestinyDTO destinyDTO) {
 
         Destiny nuevo = Destiny.builder()
                 .name(destinyDTO.getName())
