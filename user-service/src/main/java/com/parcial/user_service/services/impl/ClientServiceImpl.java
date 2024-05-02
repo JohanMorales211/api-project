@@ -19,20 +19,20 @@ public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
 
     @Override
-    public Client save(ClientDTO clientDTO){
+    public Client save(ClientDTO clientDTO) {
 
-            Optional<Client> guardado = clientRepository.findByDocumentNumber(clientDTO.getDocumentNumber());
+        Optional<Client> guardado = clientRepository.findByDocumentNumber(clientDTO.getDocumentNumber());
 
-            if(guardado.isPresent()){
-                throw new RuntimeException("El cliente con id: "+clientDTO.getDocumentNumber()+", ya existe");
-            }
+        if (guardado.isPresent()) {
+            throw new RuntimeException("El cliente con id: " + clientDTO.getDocumentNumber() + ", ya existe");
+        }
 
-            return clientRepository.save(factory(clientDTO));
+        return clientRepository.save(factory(clientDTO));
 
     }
 
     @Override
-    public List<Client> findAll(){
+    public List<Client> findAll() {
         return clientRepository.findAll();
     }
 
@@ -40,17 +40,16 @@ public class ClientServiceImpl implements ClientService {
     public ClientDTO findByDocumentNumber(String documentNumber) {
         Client client = clientRepository.findByDocumentNumber(documentNumber).orElse(null);
         ClientDTO clientDTO = new ClientDTO(client);
-        return  clientDTO;
+        return clientDTO;
     }
 
     @Override
-    public Client update(ClientDTO clientDTO){
-        return clientRepository.save( factory(clientDTO) );
+    public Client update(ClientDTO clientDTO) {
+        return clientRepository.save(factory(clientDTO));
     }
 
     @Override
-    public Client factory(ClientDTO clientDTO){
-
+    public Client factory(ClientDTO clientDTO) {
         Client nuevo = Client.builder()
                 .firstName(clientDTO.getFirstName())
                 .secondName(clientDTO.getSecondName())
@@ -64,5 +63,16 @@ public class ClientServiceImpl implements ClientService {
                 .build();
 
         return nuevo;
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        // Verificar si el cliente existe
+        Optional<Client> optionalClient = clientRepository.findById(id);
+        if (optionalClient.isEmpty()) {
+            throw new RuntimeException("No se puede encontrar un cliente con el ID proporcionado: " + id);
+        }
+
+        clientRepository.deleteById(id);
     }
 }

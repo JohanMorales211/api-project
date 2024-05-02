@@ -14,5 +14,7 @@ public interface ClientService {
 
     public Client update(ClientDTO clientDTO);
 
+    public void deleteById(Long id);
+
     public Client factory(ClientDTO clientDTO);
 }
