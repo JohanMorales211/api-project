@@ -12,7 +12,7 @@ public interface ClientService {
 
     public ClientDTO findByDocumentNumber(String documentNumber);
 
-    public Client update(ClientDTO clientDTO);
+    public Client update(Long id, ClientDTO clientDTO);
 
     public void deleteById(Long id);
 
