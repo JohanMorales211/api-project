@@ -2,6 +2,7 @@ package com.parcial.user_service.controller;
 
 import com.parcial.user_service.dto.ClientDTO;
 import com.parcial.user_service.dto.Response;
+import com.parcial.user_service.exception.ClienteNoEncontradoException;
 import com.parcial.user_service.models.Client;
 import com.parcial.user_service.services.ClientService;
 import lombok.AllArgsConstructor;
@@ -39,8 +40,8 @@ public class ClientController {
         try {
             clientService.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK).body(new Response<>("Cliente eliminado correctamente", null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Response<>(e.getMessage(), null));
+        } catch (ClienteNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Response<>(e.getMessage()));
         }
     }
 }
