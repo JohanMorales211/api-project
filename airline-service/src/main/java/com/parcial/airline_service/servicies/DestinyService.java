@@ -17,4 +17,6 @@ public interface DestinyService {
     public Destiny update(DestinyDTO destinyDTO);
 
     public Destiny factory(DestinyDTO destinyDTO);
+
+    void deleteById(Long id);
 }

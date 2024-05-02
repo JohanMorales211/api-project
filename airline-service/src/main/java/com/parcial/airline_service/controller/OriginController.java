@@ -2,6 +2,8 @@ package com.parcial.airline_service.controller;
 
 import com.parcial.airline_service.dto.OriginDTO;
 import com.parcial.airline_service.dto.Response;
+import com.parcial.airline_service.exceptions.DestinoNoEncontradoException;
+import com.parcial.airline_service.exceptions.OriginNoEncontradoException;
 import com.parcial.airline_service.models.Origin;
 import com.parcial.airline_service.servicies.impl.OriginServiceImpl;
 import lombok.AllArgsConstructor;
@@ -31,5 +33,15 @@ public class OriginController {
     @GetMapping("/{name}")
     public ResponseEntity<Response<Origin>> findAll(@PathVariable String name){
         return ResponseEntity.status(HttpStatus.OK).body( new Response<>("", originService.findByName(name)) );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response<String>> deleteById(@PathVariable Long id) {
+        try {
+            originService.deleteById(id);
+            return ResponseEntity.status(HttpStatus.OK).body(new Response<>("Origen eliminado correctamente", null));
+        } catch (OriginNoEncontradoException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Response<>(e.getMessage()));
+        }
     }
 }

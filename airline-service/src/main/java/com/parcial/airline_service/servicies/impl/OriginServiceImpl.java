@@ -2,6 +2,7 @@ package com.parcial.airline_service.servicies.impl;
 
 
 import com.parcial.airline_service.dto.OriginDTO;
+import com.parcial.airline_service.models.Destiny;
 import com.parcial.airline_service.models.Origin;
 import com.parcial.airline_service.reposotories.OriginRepository;
 import com.parcial.airline_service.servicies.OriginService;
@@ -52,5 +53,15 @@ public class OriginServiceImpl implements OriginService {
                 .build();
 
         return nuevo;
+    }
+
+    public void deleteById(Long id) {
+        // Verificar si el cliente existe
+        Optional<Origin> optionalClient = originRepository.findById(id);
+        if (optionalClient.isEmpty()) {
+            throw new RuntimeException("No se puede encontrar un origen con el ID proporcionado: " + id);
+        }
+
+        originRepository.deleteById(id);
     }
 }

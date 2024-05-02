@@ -47,4 +47,15 @@ public class DestinyServiceImpl implements DestinyService {
                 .build();
         return nuevo;
     }
+
+    @Override
+    public void deleteById(Long id) {
+        // Verificar si el cliente existe
+        Optional<Destiny> optionalClient = destinyRepository.findById(id);
+        if (optionalClient.isEmpty()) {
+            throw new RuntimeException("No se puede encontrar un cliente con el ID proporcionado: " + id);
+        }
+
+        destinyRepository.deleteById(id);
+    }
 }
