@@ -17,4 +17,6 @@ public interface ClientService {
     public void deleteById(Long id);
 
     public Client factory(ClientDTO clientDTO);
+
+    List<Client> findByCity(String city);
 }

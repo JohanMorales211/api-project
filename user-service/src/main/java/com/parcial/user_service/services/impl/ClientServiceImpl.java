@@ -1,11 +1,13 @@
 package com.parcial.user_service.services.impl;
 
 import com.parcial.user_service.dto.ClientDTO;
+import com.parcial.user_service.exception.ClienteNoEncontradoException;
 import com.parcial.user_service.models.Client;
 import com.parcial.user_service.repositories.ClientRepository;
 import com.parcial.user_service.services.ClientService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,15 +22,12 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Client save(ClientDTO clientDTO) {
-
         Optional<Client> guardado = clientRepository.findByDocumentNumber(clientDTO.getDocumentNumber());
-
         if (guardado.isPresent()) {
             throw new RuntimeException("El cliente con id: " + clientDTO.getDocumentNumber() + ", ya existe");
         }
 
         return clientRepository.save(factory(clientDTO));
-
     }
 
     @Override
@@ -63,6 +62,15 @@ public class ClientServiceImpl implements ClientService {
                 .build();
 
         return nuevo;
+    }
+
+    @Override
+    public List<Client> findByCity(String city) {
+        try {
+            return clientRepository.findByCity(city);
+        } catch (DataAccessException e) {
+            throw new ClienteNoEncontradoException("Error al buscar clientes por ciudad: " + e.getMessage());
+        }
     }
 
     @Override

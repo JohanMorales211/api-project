@@ -30,9 +30,22 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", clientService.findAll()));
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<Response<ClientDTO>> findAll(@PathVariable String name) {
-        return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", clientService.findByDocumentNumber(name)));
+    // @GetMapping("/{name}")
+    // public ResponseEntity<Response<ClientDTO>> findAll(@PathVariable String name)
+    // {
+    // return ResponseEntity.status(HttpStatus.OK).body(new Response<>("",
+    // clientService.findByDocumentNumber(name)));
+    // }
+
+    @GetMapping("/city/{city}")
+    public ResponseEntity<Response<List<Client>>> findByCity(@PathVariable String city) {
+        List<Client> clients = clientService.findByCity(city);
+        if (clients.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new Response<>("No se encontraron clientes en la ciudad especificada", null));
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new Response<>("Clientes encontrados en la ciudad especificada", clients));
     }
 
     @DeleteMapping("/{id}")
