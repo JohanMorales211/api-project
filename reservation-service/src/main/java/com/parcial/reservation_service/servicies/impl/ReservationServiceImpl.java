@@ -31,22 +31,22 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Reservation save(ReservationPostDTO reservationPostDTO) {
-        validateHost(reservationPostDTO.hostId());
-        validateFlight(reservationPostDTO.flightId());
-        validateUser(reservationPostDTO.userId());
+        validateHost(reservationPostDTO.hostName());
+        validateFlight(reservationPostDTO.flightPlate());
+        validateUser(reservationPostDTO.userDocumentNumber());
 
         Reservation reservation = new Reservation();
-        reservation.setFlightId(reservationPostDTO.flightId());
-        reservation.setHostId(reservationPostDTO.hostId());
-        reservation.setUserId(reservationPostDTO.userId());
+        reservation.setFlight(reservationPostDTO.flightPlate());
+        reservation.setHost(reservationPostDTO.hostName());
+        reservation.setUserDocument(reservationPostDTO.userDocumentNumber());
         reservation.setReservationDate(LocalDateTime.now());
         return reservationRepository.save(reservation);
     }
 
     @Override
-    public List<Reservation> findByUserId(Integer userId) {
-        validateUser(userId);
-        List<Reservation> lista = reservationRepository.findByUserId(userId);
+    public List<Reservation> findByUserDocumentNumber(String user) {
+        validateUser(user);
+        List<Reservation> lista = reservationRepository.findByUserId(user);
 
         return new ArrayList<>();
     }
@@ -62,12 +62,12 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public void validateFlight(Integer flightId) {
+    public void validateFlight(String flightPlate) {
         ResponseEntity<Response<Flight>> responseEntity;
         try {
 
             responseEntity = restTemplate.exchange(
-                    "http://gateway-service:9999/api/flight/" + flightId,
+                    "http://gateway-service:8780/api/flights/" + flightPlate,
                     HttpMethod.GET,
                     null,
                     new ParameterizedTypeReference<Response<Flight>>() {});
@@ -75,7 +75,7 @@ public class ReservationServiceImpl implements ReservationService {
             if(responseEntity.getStatusCode() == HttpStatus.OK){
                 Flight flight = responseEntity.getBody().getDato();
                 if(flight == null || flight.getId() == null){
-                    throw new RuntimeException("El código " + flightId + " no pertenece a ningún flight");
+                    throw new RuntimeException("El número " + flightPlate + " no pertenece a ningún flight");
                 }
             }
 
@@ -94,12 +94,12 @@ public class ReservationServiceImpl implements ReservationService {
 
 
     @Override
-    public void validateHost(Integer hostId) {
+    public void validateHost(String hostName) {
         ResponseEntity<Response<Host>> responseEntity;
         try {
 
             responseEntity = restTemplate.exchange(
-                    "http://gateway-service:9999/api/host/" + hostId,
+                    "http://gateway-service:8780/api/hostings/" + hostName,
                     HttpMethod.GET,
                     null,
                     new ParameterizedTypeReference<Response<Host>>() {});
@@ -107,7 +107,7 @@ public class ReservationServiceImpl implements ReservationService {
             if(responseEntity.getStatusCode() == HttpStatus.OK){
                 Host host = responseEntity.getBody().getDato();
                 if(host == null || host.getId() == null){
-                    throw new RuntimeException("El código " + hostId + " no pertenece a ningún host");
+                    throw new RuntimeException("El nombre " + hostName + " no pertenece a ningún host");
                 }
             }
 
@@ -125,20 +125,20 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public void validateUser(Integer userId) {
+    public void validateUser(String userDocumentNumber) {
         ResponseEntity<Response<User>> responseEntity;
         try {
 
             responseEntity = restTemplate.exchange(
-                    "http://gateway-service:9999/api/client/" + userId,
+                    "http://gateway-service:8780/api/client/" + userDocumentNumber,
                     HttpMethod.GET,
                     null,
                     new ParameterizedTypeReference<Response<User>>() {});
 
             if(responseEntity.getStatusCode() == HttpStatus.OK){
                 User user = responseEntity.getBody().getDato();
-                if(user == null || user.getId() == null){
-                    throw new RuntimeException("El código " + userId + " no pertenece a ningún usuario");
+                if(user == null || user.getDocumentNumber() == null){
+                    throw new RuntimeException("El número de documento " + userDocumentNumber + " no pertenece a ningún usuario");
                 }
             }
 
@@ -160,13 +160,13 @@ public class ReservationServiceImpl implements ReservationService {
     public Integer update(Integer reservationId, ReservationPostDTO reservationPostDTO) {
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(()-> new ReservationNotFound("No existe una reserva con el código: "+reservationId));
 
-        validateHost(reservationPostDTO.hostId());
-        validateFlight(reservationPostDTO.flightId());
-        validateUser(reservationPostDTO.userId());
+        validateHost(reservationPostDTO.hostName());
+        validateFlight(reservationPostDTO.flightPlate());
+        validateUser(reservationPostDTO.userDocumentNumber());
 
-        reservation.setFlightId(reservationPostDTO.flightId());
-        reservation.setHostId(reservationPostDTO.hostId());
-        reservation.setUserId(reservationPostDTO.userId());
+        reservation.setFlight(reservationPostDTO.flightPlate());
+        reservation.setHost(reservationPostDTO.hostName());
+        reservation.setUserDocument(reservationPostDTO.userDocumentNumber());
         reservation.setReservationDate(LocalDateTime.now());
 
         return reservationRepository.save(reservation).getId();

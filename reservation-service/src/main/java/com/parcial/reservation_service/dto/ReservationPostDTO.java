@@ -1,4 +1,4 @@
 package com.parcial.reservation_service.dto;
 
-public record ReservationPostDTO(Integer hostId, Integer userId, Integer flightId) {
+public record ReservationPostDTO(String hostName, String userDocumentNumber, String flightPlate) {
 }

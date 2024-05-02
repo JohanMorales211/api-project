@@ -10,7 +10,7 @@ public interface ReservationService {
 
     public Reservation save(ReservationPostDTO reservationPostDTO);
 
-    public List<Reservation> findByUserId(Integer userId);
+    public List<Reservation> findByUserDocumentNumber(String user);
 
     public List<Reservation> findAll();
 
@@ -18,10 +18,10 @@ public interface ReservationService {
 
     public Integer update(Integer reservationId, ReservationPostDTO reservationPostDTO);
 
-    public void validateHost(Integer hostId);
+    public void validateHost(String hostName);
 
-    public void validateUser(Integer userId);
+    public void validateUser(String userDocumentNumber);
 
-    public void validateFlight(Integer flightId);
+    public void validateFlight(String flightPlate);
 
 }

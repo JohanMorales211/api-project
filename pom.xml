@@ -29,6 +29,7 @@
 		<module>gateway-service</module>
 		<module>hosting-service</module>
 		<module>reservation-service</module>
+		<module>user-service</module>
 	</modules>
 
 	<dependencies>

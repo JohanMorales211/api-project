@@ -20,11 +20,11 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer hostId;
+    private String host;
 
-    private Integer userId;
+    private String userDocument;
 
-    private Integer flightId;
+    private String flight;
 
     @Column(nullable = false)
     private LocalDateTime reservationDate;

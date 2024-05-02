@@ -33,9 +33,9 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.OK).body(new Response<>("Se ha actualizado el préstamo", reservationService.update(reservationId, ReservationPostDTO)));
     }
 
-    @GetMapping("/Reservation/{userId}")
-    public ResponseEntity<Response<List<Reservation>>> findByCodigoCliente(@PathVariable Integer userId){
-        return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", reservationService.findByUserId(userId)));
+    @GetMapping("/Reservation/{userDocumentNumber}")
+    public ResponseEntity<Response<List<Reservation>>> findByCodigoCliente(@PathVariable String userDocumentNumber){
+        return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", reservationService.findByUserDocumentNumber(userDocumentNumber)));
     }
 
     @GetMapping("/{reservationId}")

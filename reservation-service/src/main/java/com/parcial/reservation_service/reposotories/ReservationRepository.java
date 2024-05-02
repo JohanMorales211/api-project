@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
 
-    @Query(value = "SELECT * FROM Reservation r WHERE r.userId = :userId", nativeQuery = true)
-    List<Reservation> findByUserId(Integer userId);
+    @Query(value = "SELECT * FROM Reservation r WHERE r.user = :user", nativeQuery = true)
+    List<Reservation> findByUserId(String user);
 }
