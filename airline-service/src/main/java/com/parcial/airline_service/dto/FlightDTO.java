@@ -14,7 +14,7 @@ public class FlightDTO {
     private Boolean isDirect;
     private Integer durationHours;
     private Integer passengersNumber;
-    private Long originId;
-    private Long destinyId;
+    private String originName;
+    private String destinyName;
 
 }

@@ -1,6 +1,7 @@
 package com.parcial.airline_service.servicies.impl;
 
 import com.parcial.airline_service.dto.FlightDTO;
+import com.parcial.airline_service.exceptions.ResourceNotFoundException;
 import com.parcial.airline_service.models.Destiny;
 import com.parcial.airline_service.models.Flight;
 import com.parcial.airline_service.models.Origin;
@@ -9,8 +10,9 @@ import com.parcial.airline_service.reposotories.FlightRepository;
 import com.parcial.airline_service.reposotories.OriginRepository;
 import com.parcial.airline_service.servicies.FlightService;
 import lombok.AllArgsConstructor;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import java.util.Optional;
 
@@ -24,37 +26,44 @@ public class FlightServiceImpl implements FlightService {
     private final DestinyRepository destinyRepository;
 
     @Override
-    public Flight save(FlightDTO flightDTO){
+    public Flight save(FlightDTO flightDTO) {
+        // Buscar el origen por nombre
+        Origin origin = originRepository.findByName(flightDTO.getOriginName())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Origen '" + flightDTO.getOriginName() + "' no encontrado"));
 
-        Origin origin = originRepository.findById(flightDTO.getOriginId()).orElse(null);
-        Destiny destiny = destinyRepository.findById(flightDTO.getDestinyId()).orElse(null);
-        if(origin != null && destiny != null){
-            Optional<Flight> guardado = flightRepository.findByPlate(flightDTO.getPlate());
+        // Buscar el destino por nombre
+        Destiny destiny = destinyRepository.findByName(flightDTO.getDestinyName())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Destino '" + flightDTO.getDestinyName() + "' no encontrado"));
 
-            if(guardado.isPresent()){
-                throw new RuntimeException("El vuelo con la matricula"+flightDTO.getPlate()+" ya existe");
-            }
-
-            return flightRepository.save( factory(flightDTO, destiny, origin) );
+        // Verificar si el vuelo ya existe
+        Optional<Flight> guardado = flightRepository.findByPlate(flightDTO.getPlate());
+        if (guardado.isPresent()) {
+            throw new RuntimeException("El vuelo con la matrícula " + flightDTO.getPlate() + " ya existe");
         }
 
-        throw new RuntimeException("El destino u origen del vuelo no esta registrado");
+        return flightRepository.save(factory(flightDTO, destiny, origin));
     }
 
     @Override
-    public Flight findByPlate(String plate){
+    public Flight findByPlate(String plate) {
         return flightRepository.findByPlate(plate).orElse(null);
     }
 
     @Override
-    public Flight update(FlightDTO flightDTO, Destiny destiny, Origin origin){
-        return flightRepository.save( factory(flightDTO, destiny, origin) );
+    public List<Flight> findByDestinyName(String destinyName) {
+        return flightRepository.findByDestiny_Name(destinyName);
     }
 
     @Override
-    public Flight factory(FlightDTO flightDTO, Destiny destiny, Origin origin){
+    public Flight update(FlightDTO flightDTO, Destiny destiny, Origin origin) {
+        return flightRepository.save(factory(flightDTO, destiny, origin));
+    }
 
-        Flight nuevo = Flight.builder()
+    @Override
+    public Flight factory(FlightDTO flightDTO, Destiny destiny, Origin origin) {
+        return Flight.builder()
                 .airline(flightDTO.getAirline())
                 .plate(flightDTO.getPlate())
                 .departureDate(flightDTO.getDepartureDate())
@@ -65,8 +74,6 @@ public class FlightServiceImpl implements FlightService {
                 .destiny(destiny)
                 .origin(origin)
                 .build();
-
-        return nuevo;
     }
 
 }
