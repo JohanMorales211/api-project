@@ -64,4 +64,11 @@ public class DestinyServiceImpl implements DestinyService {
 
         destinyRepository.deleteById(id);
     }
+
+    @Override
+    public boolean existsByName(String name) {
+        return destinyRepository.existsByNameIgnoreCase(name);
+    }
+
+
 }

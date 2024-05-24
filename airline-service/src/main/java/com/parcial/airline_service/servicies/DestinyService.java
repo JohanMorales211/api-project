@@ -13,5 +13,9 @@ public interface DestinyService {
 
     public Destiny factory(DestinyDTO destinyDTO);
 
+    boolean existsByName(String name);
+
+
+
     void deleteById(Long id);
 }
