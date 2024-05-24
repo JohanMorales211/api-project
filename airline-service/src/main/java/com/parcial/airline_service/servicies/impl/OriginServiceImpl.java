@@ -18,11 +18,13 @@ public class OriginServiceImpl implements OriginService {
 
     @Override
     public Origin save(OriginDTO originDTO) {
-        Optional<Origin> guardado = originRepository.findByName(originDTO.getName());
-        if (guardado.isPresent()) {
-            throw new RuntimeException("El origen con el nombre " + originDTO.getName() + " ya existe");
+        Optional<Origin> existingOrigin = originRepository.findByNameIgnoreCase(originDTO.getName());
+        if (existingOrigin.isPresent()) {
+            throw new RuntimeException("El origen con el nombre '" + originDTO.getName() + "' ya existe.");
         }
-        return originRepository.save(factory(originDTO));
+
+        Origin newOrigin = factory(originDTO);
+        return originRepository.save(newOrigin);
     }
 
     @Override

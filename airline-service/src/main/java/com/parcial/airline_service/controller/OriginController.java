@@ -18,9 +18,14 @@ public class OriginController {
     private final OriginServiceImpl originService;
 
     @PostMapping
-    public ResponseEntity<Response<Origin>> save(@RequestBody OriginDTO originDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new Response<>("Origen creado correctamente", originService.save(originDTO)));
+    public ResponseEntity<Response<Origin>> createOrigin(@RequestBody OriginDTO originDTO) {
+        try {
+            Origin savedOrigin = originService.save(originDTO);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new Response<>("Origen creado exitosamente", savedOrigin));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new Response<>(e.getMessage(), null));
+        }
     }
 
     @PutMapping("/{id}")
