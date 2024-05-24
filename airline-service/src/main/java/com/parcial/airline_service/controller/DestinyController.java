@@ -36,7 +36,7 @@ public class DestinyController {
     @GetMapping("/{name}")
     public ResponseEntity<Response<Destiny>> getDestinationByName(@PathVariable("name") String name) {
         Destiny destiny = destinyService.getDestinationByName(name);
-        return ResponseEntity.ok(new Response<>("Destino recuperado exitosamente", destiny));
+        return ResponseEntity.ok(new Response<>("Destino encontrado exitosamente", destiny));
     }
 
     @DeleteMapping("/{id}")

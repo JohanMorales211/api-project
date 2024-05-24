@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -45,11 +44,6 @@ public class FlightServiceImpl implements FlightService {
     @Override
     public Flight findByPlate(String plate){
         return flightRepository.findByPlate(plate).orElse(null);
-    }
-
-    @Override
-    public List<Flight> findAll(){
-        return flightRepository.findAll();
     }
 
     @Override

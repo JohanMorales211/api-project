@@ -1,17 +1,13 @@
 package com.parcial.airline_service.servicies.impl;
 
-import com.parcial.airline_service.dto.DestinyDTO;
 import com.parcial.airline_service.dto.OriginDTO;
-import com.parcial.airline_service.exceptions.DestinoNoEncontradoException;
 import com.parcial.airline_service.exceptions.OriginNoEncontradoException;
-import com.parcial.airline_service.models.Destiny;
 import com.parcial.airline_service.models.Origin;
 import com.parcial.airline_service.reposotories.OriginRepository;
 import com.parcial.airline_service.servicies.OriginService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,24 +18,11 @@ public class OriginServiceImpl implements OriginService {
 
     @Override
     public Origin save(OriginDTO originDTO) {
-
         Optional<Origin> guardado = originRepository.findByName(originDTO.getName());
-
         if (guardado.isPresent()) {
             throw new RuntimeException("El origen con el nombre " + originDTO.getName() + " ya existe");
         }
-
         return originRepository.save(factory(originDTO));
-    }
-
-    @Override
-    public Origin findByName(String name) {
-        return originRepository.findByName(name).orElse(null);
-    }
-
-    @Override
-    public List<Origin> findAll() {
-        return originRepository.findAll();
     }
 
     @Override
@@ -54,8 +37,14 @@ public class OriginServiceImpl implements OriginService {
     }
 
     @Override
-    public Origin factory(OriginDTO originDTO) {
+    public Origin getOriginByName(String name) {
+        Origin origin = originRepository.findByNameIgnoreCase(name)
+                .orElseThrow(() -> new OriginNoEncontradoException("Origen no encontrado con el nombre: " + name));
+        return origin;
+    }
 
+    @Override
+    public Origin factory(OriginDTO originDTO) {
         Origin nuevo = Origin.builder()
                 .name(originDTO.getName())
                 .description(originDTO.getDescription())
