@@ -32,5 +32,4 @@ public class FlightController {
     public ResponseEntity<Response<Flight>> findAll(@PathVariable String plate){
         return ResponseEntity.status(HttpStatus.OK).body( new Response<>("", flightService.findByPlate(plate)) );
     }
-
 }

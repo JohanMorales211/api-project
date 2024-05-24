@@ -18,4 +18,5 @@ public interface FlightService {
     public Flight update(FlightDTO flightDTO, Destiny destiny, Origin origin);
 
     public Flight factory(FlightDTO flightDTO, Destiny destiny, Origin origin);
+
 }
