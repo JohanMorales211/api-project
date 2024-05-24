@@ -18,11 +18,14 @@ public class DestinyServiceImpl implements DestinyService {
 
     @Override
     public Destiny save(DestinyDTO destinyDTO) {
-        Optional<Destiny> guardado = destinyRepository.findByName(destinyDTO.getName());
-        if (guardado.isPresent()) {
-            throw new RuntimeException("El destino con el nombre" + destinyDTO.getName() + " ya existe");
+        Optional<Destiny> existingDestiny = destinyRepository.findByNameIgnoreCase(destinyDTO.getName());
+        if (existingDestiny.isPresent()) {
+            throw new RuntimeException("El destino con el nombre '" + destinyDTO.getName() + "' ya existe.");
         }
-        return destinyRepository.save(factory(destinyDTO));
+
+        Destiny newDestiny = factory(destinyDTO);
+        newDestiny.setName(newDestiny.getName().toLowerCase());
+        return destinyRepository.save(newDestiny);
     }
 
     @Override

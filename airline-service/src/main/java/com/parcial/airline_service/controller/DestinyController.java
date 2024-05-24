@@ -17,9 +17,14 @@ public class DestinyController {
     private final DestinyServiceImpl destinyService;
 
     @PostMapping
-    public ResponseEntity<Response<Destiny>> save(@RequestBody DestinyDTO destinyDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new Response<>("Destino creado correctamente", destinyService.save(destinyDTO)));
+    public ResponseEntity<Response<Destiny>> createDestination(@RequestBody DestinyDTO destinyDTO) {
+        try {
+            Destiny savedDestiny = destinyService.save(destinyDTO);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new Response<>("Destino creado exitosamente", savedDestiny));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new Response<>(e.getMessage(), null));
+        }
     }
 
     @PutMapping("/{id}")
