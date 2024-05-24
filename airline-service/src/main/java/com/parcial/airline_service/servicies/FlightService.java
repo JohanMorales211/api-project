@@ -15,7 +15,7 @@ public interface FlightService {
 
     List<Flight> findByDestinyName(String destinyName);
 
-    public Flight update(FlightDTO flightDTO, Destiny destiny, Origin origin);
+    Flight update(String plate, FlightDTO flightDTO);
 
     public Flight factory(FlightDTO flightDTO, Destiny destiny, Origin origin);
 

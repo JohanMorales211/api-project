@@ -59,4 +59,22 @@ public class FlightController {
                     .body(new Response<>("No se encontraron vuelos para el destino '" + destinyName + "'", null));
         }
     }
+
+    @PutMapping("/{plate}")
+    public ResponseEntity<Response<Flight>> update(@PathVariable String plate, @RequestBody FlightDTO flightDTO) {
+        try {
+            Flight updatedFlight = flightService.update(plate, flightDTO);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new Response<>("Vuelo actualizado correctamente", updatedFlight));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new Response<>(e.getMessage(), null));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new Response<>(e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new Response<>("Error interno del servidor", null));
+        }
+    }
 }

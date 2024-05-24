@@ -57,8 +57,33 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public Flight update(FlightDTO flightDTO, Destiny destiny, Origin origin) {
-        return flightRepository.save(factory(flightDTO, destiny, origin));
+    public Flight update(String plate, FlightDTO flightDTO) {
+        // Buscar el vuelo por la placa
+        Flight existingFlight = flightRepository.findByPlate(plate)
+                .orElseThrow(() -> new ResourceNotFoundException("Vuelo con la placa '" + plate + "' no encontrado"));
+
+        // Buscar el origen por nombre
+        Origin origin = originRepository.findByName(flightDTO.getOriginName())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Origen '" + flightDTO.getOriginName() + "' no encontrado"));
+
+        // Buscar el destino por nombre
+        Destiny destiny = destinyRepository.findByName(flightDTO.getDestinyName())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Destino '" + flightDTO.getDestinyName() + "' no encontrado"));
+
+        // Actualizar los campos del vuelo existente
+        existingFlight.setAirline(flightDTO.getAirline());
+        existingFlight.setDepartureDate(flightDTO.getDepartureDate());
+        existingFlight.setReturnDate(flightDTO.getReturnDate());
+        existingFlight.setIsDirect(flightDTO.getIsDirect());
+        existingFlight.setDurationHours(flightDTO.getDurationHours());
+        existingFlight.setPassengersNumber(flightDTO.getPassengersNumber());
+        existingFlight.setOrigin(origin);
+        existingFlight.setDestiny(destiny);
+
+        // Guardar los cambios
+        return flightRepository.save(existingFlight);
     }
 
     @Override
