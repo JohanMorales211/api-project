@@ -9,6 +9,7 @@ import com.parcial.airline_service.reposotories.FlightRepository;
 import com.parcial.airline_service.reposotories.OriginRepository;
 import com.parcial.airline_service.servicies.FlightService;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
