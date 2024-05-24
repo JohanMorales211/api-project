@@ -15,4 +15,6 @@ public interface DestinyRepository extends JpaRepository<Destiny, Long> {
 
     @Query("SELECT d FROM Destiny d WHERE LOWER(d.name) = LOWER(:name)")
     Optional<Destiny> findByNameIgnoreCase(@Param("name") String name);
+
+    boolean existsByNameIgnoreCase(String name);
 }
