@@ -8,7 +8,6 @@ import com.parcial.airline_service.servicies.DestinyService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,13 +26,10 @@ public class DestinyServiceImpl implements DestinyService {
     }
 
     @Override
-    public Destiny findByName(String name) {
-        return destinyRepository.findByName(name).orElse(null);
-    }
-
-    @Override
-    public List<Destiny> findAll() {
-        return destinyRepository.findAll();
+    public Destiny getDestinationByName(String name) {
+        Destiny destiny = destinyRepository.findByNameIgnoreCase(name)
+                .orElseThrow(() -> new DestinoNoEncontradoException("Destino no encontrado con el nombre: " + name));
+        return destiny;
     }
 
     @Override
@@ -49,7 +45,6 @@ public class DestinyServiceImpl implements DestinyService {
 
     @Override
     public Destiny factory(DestinyDTO destinyDTO) {
-
         Destiny nuevo = Destiny.builder()
                 .name(destinyDTO.getName())
                 .description(destinyDTO.getDescription())
@@ -59,7 +54,6 @@ public class DestinyServiceImpl implements DestinyService {
 
     @Override
     public void deleteById(Long id) {
-        // Verificar si el cliente existe
         Optional<Destiny> optionalClient = destinyRepository.findById(id);
         if (optionalClient.isEmpty()) {
             throw new RuntimeException("No se puede encontrar un cliente con el ID proporcionado: " + id);

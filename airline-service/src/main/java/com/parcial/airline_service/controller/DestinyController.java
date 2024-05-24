@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/destiny")
 @AllArgsConstructor
@@ -24,20 +22,16 @@ public class DestinyController {
                 .body(new Response<>("Destino creado correctamente", destinyService.save(destinyDTO)));
     }
 
-    @GetMapping
-    public ResponseEntity<Response<List<Destiny>>> findAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", destinyService.findAll()));
-    }
-
-    @GetMapping("/{name}")
-    public ResponseEntity<Response<Destiny>> findAll(@PathVariable String name) {
-        return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", destinyService.findByName(name)));
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<Response<Destiny>> update(@PathVariable Long id, @RequestBody DestinyDTO destinyDTO) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new Response<>("Destino actualizado correctamente", destinyService.update(id, destinyDTO)));
+    }
+
+    @GetMapping("/{name}")
+    public ResponseEntity<Response<Destiny>> getDestinationByName(@PathVariable("name") String name) {
+        Destiny destiny = destinyService.getDestinationByName(name);
+        return ResponseEntity.ok(new Response<>("Destino recuperado exitosamente", destiny));
     }
 
     @DeleteMapping("/{id}")
