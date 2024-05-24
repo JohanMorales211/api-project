@@ -1,7 +1,9 @@
 package com.parcial.airline_service.servicies.impl;
 
-
+import com.parcial.airline_service.dto.DestinyDTO;
 import com.parcial.airline_service.dto.OriginDTO;
+import com.parcial.airline_service.exceptions.DestinoNoEncontradoException;
+import com.parcial.airline_service.exceptions.OriginNoEncontradoException;
 import com.parcial.airline_service.models.Destiny;
 import com.parcial.airline_service.models.Origin;
 import com.parcial.airline_service.reposotories.OriginRepository;
@@ -17,35 +19,42 @@ import java.util.Optional;
 public class OriginServiceImpl implements OriginService {
 
     private final OriginRepository originRepository;
+
     @Override
-    public Origin save(OriginDTO originDTO){
+    public Origin save(OriginDTO originDTO) {
 
         Optional<Origin> guardado = originRepository.findByName(originDTO.getName());
 
-        if(guardado.isPresent()){
-            throw new RuntimeException("El origen con el nombre "+originDTO.getName()+" ya existe");
+        if (guardado.isPresent()) {
+            throw new RuntimeException("El origen con el nombre " + originDTO.getName() + " ya existe");
         }
 
-        return originRepository.save( factory(originDTO) );
+        return originRepository.save(factory(originDTO));
     }
 
     @Override
-    public Origin findByName(String name){
+    public Origin findByName(String name) {
         return originRepository.findByName(name).orElse(null);
     }
 
     @Override
-    public List<Origin> findAll(){
+    public List<Origin> findAll() {
         return originRepository.findAll();
     }
 
     @Override
-    public Origin update(OriginDTO originDTO){
-        return originRepository.save( factory(originDTO) );
+    public Origin update(Long id, OriginDTO originDTO) {
+        Origin existingOrigin = originRepository.findById(id)
+                .orElseThrow(() -> new OriginNoEncontradoException("Origen no encontrado con id: " + id));
+
+        existingOrigin.setName(originDTO.getName());
+        existingOrigin.setDescription(originDTO.getDescription());
+
+        return originRepository.save(existingOrigin);
     }
 
     @Override
-    public Origin factory(OriginDTO originDTO){
+    public Origin factory(OriginDTO originDTO) {
 
         Origin nuevo = Origin.builder()
                 .name(originDTO.getName())

@@ -43,8 +43,21 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Client update(ClientDTO clientDTO) {
-        return clientRepository.save(factory(clientDTO));
+    public Client update(Long id, ClientDTO clientDTO) {
+        Client existingClient = clientRepository.findById(id)
+                .orElseThrow(() -> new ClienteNoEncontradoException("Cliente no encontrado con id: " + id));
+
+        existingClient.setFirstName(clientDTO.getFirstName());
+        existingClient.setSecondName(clientDTO.getSecondName());
+        existingClient.setFirstSurname(clientDTO.getFirstSurname());
+        existingClient.setSecondSurname(clientDTO.getSecondSurname());
+        existingClient.setDocumentNumber(clientDTO.getDocumentNumber());
+        existingClient.setPassword(clientDTO.getPassword());
+        existingClient.setCity(clientDTO.getCity());
+        existingClient.setEmail(clientDTO.getEmail());
+        existingClient.setRole(clientDTO.getRole());
+
+        return clientRepository.save(existingClient);
     }
 
     @Override

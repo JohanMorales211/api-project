@@ -37,6 +37,12 @@ public class ClientController {
     // clientService.findByDocumentNumber(name)));
     // }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Response<Client>> update(@PathVariable Long id, @RequestBody ClientDTO clientDTO) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new Response<>("Cliente actualizado correctamente", clientService.update(id, clientDTO)));
+    }
+
     @GetMapping("/city/{city}")
     public ResponseEntity<Response<List<Client>>> findByCity(@PathVariable String city) {
         List<Client> clients = clientService.findByCity(city);
