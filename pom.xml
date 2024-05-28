@@ -30,6 +30,9 @@
 		<module>hosting-service</module>
 		<module>reservation-service</module>
 		<module>user-service</module>
+		<module>authentication-service</module>
+
+
 	</modules>
 
 	<dependencies>
