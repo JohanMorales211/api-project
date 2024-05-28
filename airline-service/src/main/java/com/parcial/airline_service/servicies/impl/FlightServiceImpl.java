@@ -130,6 +130,20 @@ public class FlightServiceImpl implements FlightService {
         Flight flight = flightRepository.findByPlate(plate)
                 .orElseThrow(() -> new ResourceNotFoundException("Vuelo con la placa '" + plate + "' no encontrado"));
 
+        // Verificar si el cliente ya tiene un asiento asignado
+        Integer existingSeatNumber = null;
+        for (Map.Entry<Integer, Long> entry : flight.getAssignedSeats().entrySet()) {
+            if (entry.getValue().equals(clientId)) {
+                existingSeatNumber = entry.getKey();
+                break;
+            }
+        }
+
+        if (existingSeatNumber != null) {
+            throw new RuntimeException("El cliente con ID '" + clientId
+                    + "' ya tiene un asiento asignado: Número de asiento " + existingSeatNumber);
+        }
+
         // Verificar si hay asientos disponibles
         if (flight.getPassengersNumber() <= 0) {
             throw new RuntimeException("No hay asientos disponibles en el vuelo con la placa '" + plate + "'");
@@ -137,7 +151,7 @@ public class FlightServiceImpl implements FlightService {
 
         // Seleccionar un asiento aleatorio dentro del rango de asientos
         Random random = new Random();
-        int totalSeats = flight.getPassengersNumber();
+        int totalSeats = flight.getPassengersNumber() + flight.getAssignedSeats().size();
         int randomSeatNumber = -1;
 
         do {
