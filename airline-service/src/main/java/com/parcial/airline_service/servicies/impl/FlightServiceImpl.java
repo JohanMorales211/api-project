@@ -135,12 +135,17 @@ public class FlightServiceImpl implements FlightService {
             throw new RuntimeException("No hay asientos disponibles en el vuelo con la placa '" + plate + "'");
         }
 
-        // Asignar un asiento disponible
-        int nextSeatNumber = 1;
-        while (flight.getAssignedSeats().containsKey(nextSeatNumber)) {
-            nextSeatNumber++;
-        }
-        flight.getAssignedSeats().put(nextSeatNumber, clientId);
+        // Seleccionar un asiento aleatorio dentro del rango de asientos
+        Random random = new Random();
+        int totalSeats = flight.getPassengersNumber();
+        int randomSeatNumber = -1;
+
+        do {
+            randomSeatNumber = random.nextInt(totalSeats) + 1; // Genera un número entre 1 y totalSeats
+        } while (flight.getAssignedSeats().containsKey(randomSeatNumber));
+
+        // Asignar el asiento disponible al cliente
+        flight.getAssignedSeats().put(randomSeatNumber, clientId);
 
         // Añadir el cliente al conjunto de clientes asignados
         flight.getAssignedClients().add(clientId);
@@ -150,7 +155,7 @@ public class FlightServiceImpl implements FlightService {
 
         // Determinar el tipo de asiento (económico o de negocios) y sumar al
         // totalRevenue
-        if (nextSeatNumber <= flight.getPassengersNumber() / 2) {
+        if (randomSeatNumber <= totalSeats / 2) {
             flight.setTotalRevenue(flight.getTotalRevenue() + flight.getEconomyPrice());
         } else {
             flight.setTotalRevenue(flight.getTotalRevenue() + flight.getBusinessPrice());
@@ -158,5 +163,4 @@ public class FlightServiceImpl implements FlightService {
 
         return flightRepository.save(flight);
     }
-
 }
