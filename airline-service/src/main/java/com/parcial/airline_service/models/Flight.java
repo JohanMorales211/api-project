@@ -9,6 +9,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @NoArgsConstructor
@@ -52,5 +54,20 @@ public class Flight implements Serializable {
     @OneToOne(optional = true)
     @JoinColumn(name = "destinies", referencedColumnName = "id")
     private Destiny destiny;
+
+    @Column(nullable = false)
+    private Integer economyPrice;
+
+    @Column(nullable = false)
+    private Integer businessPrice;
+
+    @Column(nullable = false)
+    private Integer totalRevenue;
+
+    @ElementCollection
+    @CollectionTable(name = "flight_seats", joinColumns = @JoinColumn(name = "flight_id"))
+    @MapKeyColumn(name = "seat_number")
+    @Column(name = "client_id")
+    private Map<Integer, Long> assignedSeats = new HashMap<>();
 
 }
