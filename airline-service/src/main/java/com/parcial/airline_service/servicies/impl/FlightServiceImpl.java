@@ -121,18 +121,41 @@ public class FlightServiceImpl implements FlightService {
         // Verificar si el cliente existe usando el servicio de cliente
         String clientServiceUrl = "http://gateway-service:8780/api/client/" + clientId;
         ResponseEntity<ClientDTO> response = restTemplate.getForEntity(clientServiceUrl, ClientDTO.class);
-    
+
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
             throw new ResourceNotFoundException("Cliente con ID '" + clientId + "' no encontrado");
         }
-    
+
         // Buscar el vuelo por la placa
         Flight flight = flightRepository.findByPlate(plate)
                 .orElseThrow(() -> new ResourceNotFoundException("Vuelo con la placa '" + plate + "' no encontrado"));
-    
+
+        // Verificar si hay asientos disponibles
+        if (flight.getPassengersNumber() <= 0) {
+            throw new RuntimeException("No hay asientos disponibles en el vuelo con la placa '" + plate + "'");
+        }
+
+        // Asignar un asiento disponible
+        int nextSeatNumber = 1;
+        while (flight.getAssignedSeats().containsKey(nextSeatNumber)) {
+            nextSeatNumber++;
+        }
+        flight.getAssignedSeats().put(nextSeatNumber, clientId);
+
         // Añadir el cliente al conjunto de clientes asignados
         flight.getAssignedClients().add(clientId);
-    
+
+        // Actualizar el número de pasajeros restantes
+        flight.setPassengersNumber(flight.getPassengersNumber() - 1);
+
+        // Determinar el tipo de asiento (económico o de negocios) y sumar al
+        // totalRevenue
+        if (nextSeatNumber <= flight.getPassengersNumber() / 2) {
+            flight.setTotalRevenue(flight.getTotalRevenue() + flight.getEconomyPrice());
+        } else {
+            flight.setTotalRevenue(flight.getTotalRevenue() + flight.getBusinessPrice());
+        }
+
         return flightRepository.save(flight);
     }
 
