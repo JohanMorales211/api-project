@@ -1,5 +1,6 @@
 package com.parcial.airline_service.servicies.impl;
 
+import com.parcial.airline_service.dto.ClientDTO;
 import com.parcial.airline_service.dto.FlightDTO;
 import com.parcial.airline_service.exceptions.ResourceNotFoundException;
 import com.parcial.airline_service.models.Destiny;
@@ -10,7 +11,11 @@ import com.parcial.airline_service.reposotories.FlightRepository;
 import com.parcial.airline_service.reposotories.OriginRepository;
 import com.parcial.airline_service.servicies.FlightService;
 import lombok.AllArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -19,11 +24,13 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class FlightServiceImpl implements FlightService {
+
     private final FlightRepository flightRepository;
-
     private final OriginRepository originRepository;
-
     private final DestinyRepository destinyRepository;
+    private final RestTemplate restTemplate;
+
+    private static final String CLIENT_SERVICE_URL = "http://localhost:8781/api/client/";
 
     @Override
     public Flight save(FlightDTO flightDTO) {
@@ -43,7 +50,11 @@ public class FlightServiceImpl implements FlightService {
             throw new RuntimeException("El vuelo con la matrícula " + flightDTO.getPlate() + " ya existe");
         }
 
-        return flightRepository.save(factory(flightDTO, destiny, origin));
+        // Crear el vuelo con precios y sillas
+        Flight flight = factory(flightDTO, destiny, origin);
+        flight.setTotalRevenue(0);
+
+        return flightRepository.save(flight);
     }
 
     @Override
@@ -81,6 +92,8 @@ public class FlightServiceImpl implements FlightService {
         existingFlight.setPassengersNumber(flightDTO.getPassengersNumber());
         existingFlight.setOrigin(origin);
         existingFlight.setDestiny(destiny);
+        existingFlight.setEconomyPrice(flightDTO.getEconomyPrice());
+        existingFlight.setBusinessPrice(flightDTO.getBusinessPrice());
 
         // Guardar los cambios
         return flightRepository.save(existingFlight);
@@ -98,6 +111,9 @@ public class FlightServiceImpl implements FlightService {
                 .passengersNumber(flightDTO.getPassengersNumber())
                 .destiny(destiny)
                 .origin(origin)
+                .economyPrice(flightDTO.getEconomyPrice())
+                .businessPrice(flightDTO.getBusinessPrice())
+                .totalRevenue(0)
                 .build();
     }
 

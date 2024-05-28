@@ -24,7 +24,8 @@ public class ClientServiceImpl implements ClientService {
     public Client save(ClientDTO clientDTO) {
         Optional<Client> guardado = clientRepository.findByDocumentNumber(clientDTO.getDocumentNumber());
         if (guardado.isPresent()) {
-            throw new RuntimeException("El cliente con id: " + clientDTO.getDocumentNumber() + ", ya existe");
+            throw new RuntimeException(
+                    "El cliente con número de documento: " + clientDTO.getDocumentNumber() + " ya existe");
         }
 
         return clientRepository.save(factory(clientDTO));
@@ -37,9 +38,17 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientDTO findByDocumentNumber(String documentNumber) {
-        Client client = clientRepository.findByDocumentNumber(documentNumber).orElse(null);
-        ClientDTO clientDTO = new ClientDTO(client);
-        return clientDTO;
+        Client client = clientRepository.findByDocumentNumber(documentNumber)
+                .orElseThrow(() -> new ClienteNoEncontradoException(
+                        "Cliente no encontrado con número de documento: " + documentNumber));
+        return new ClientDTO(client);
+    }
+
+    @Override
+    public ClientDTO findById(Long id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new ClienteNoEncontradoException("Cliente no encontrado con ID: " + id));
+        return new ClientDTO(client);
     }
 
     @Override
@@ -62,7 +71,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Client factory(ClientDTO clientDTO) {
-        Client nuevo = Client.builder()
+        return Client.builder()
                 .firstName(clientDTO.getFirstName())
                 .secondName(clientDTO.getSecondName())
                 .firstSurname(clientDTO.getFirstSurname())
@@ -73,8 +82,6 @@ public class ClientServiceImpl implements ClientService {
                 .email(clientDTO.getEmail())
                 .role(clientDTO.getRole())
                 .build();
-
-        return nuevo;
     }
 
     @Override

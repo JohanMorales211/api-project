@@ -6,17 +6,19 @@ import com.parcial.user_service.models.Client;
 import java.util.List;
 
 public interface ClientService {
-    public Client save(ClientDTO clientDTO);
+    Client save(ClientDTO clientDTO);
 
-    public List<Client> findAll();
+    List<Client> findAll();
 
-    public ClientDTO findByDocumentNumber(String documentNumber);
+    ClientDTO findByDocumentNumber(String documentNumber);
 
-    public Client update(Long id, ClientDTO clientDTO);
+    ClientDTO findById(Long id);
 
-    public void deleteById(Long id);
+    Client update(Long id, ClientDTO clientDTO);
 
-    public Client factory(ClientDTO clientDTO);
+    void deleteById(Long id);
+
+    Client factory(ClientDTO clientDTO);
 
     List<Client> findByCity(String city);
 }
