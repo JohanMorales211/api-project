@@ -1,8 +1,10 @@
 package com.parcial.hosting_service.servicies.impl;
 
+import com.parcial.hosting_service.clients.OriginClient;
 import com.parcial.hosting_service.config.Constantes;
 import com.parcial.hosting_service.dto.FeatureDTO;
 import com.parcial.hosting_service.dto.HostDTO;
+import com.parcial.hosting_service.dto.OriginDTO;
 import com.parcial.hosting_service.dto.PictureDTO;
 import com.parcial.hosting_service.models.Feature;
 import com.parcial.hosting_service.models.Host;
@@ -35,6 +37,9 @@ public class HostServiceImpl implements HostService {
     @Autowired
     private final PictureService pictureService;
 
+    @Autowired
+    private final OriginClient originClient;
+
     @Override
     public Host save(HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO) {
         Optional<Host> guardado = hostRepository.findByName(hostDTO.getName());
@@ -42,10 +47,17 @@ public class HostServiceImpl implements HostService {
         if (guardado.isPresent()) {
             throw new RuntimeException("El alojamiento con el nombre " + hostDTO.getName() + " ya existe");
         }
+
+        // Validar el destino usando OriginClient
+        OriginDTO originDTO = originClient.getOriginByName(hostDTO.getOriginName());
+        if (originDTO == null) {
+            throw new RuntimeException("El destino con el nombre " + hostDTO.getOriginName() + " no existe");
+        }
+
         Feature feature = featureService.save(featureDTO);
         Picture picture = pictureService.save(pictureDTO);
-        return hostRepository.save(factory(hostDTO, feature, picture));
 
+        return hostRepository.save(factory(hostDTO, feature, picture));
     }
 
     @Override
@@ -61,6 +73,16 @@ public class HostServiceImpl implements HostService {
     public Host update(String name, HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO) {
         Host existingHost = findByName(name);
 
+        if (existingHost == null) {
+            throw new RuntimeException("El alojamiento con el nombre " + name + " no existe");
+        }
+
+        // Validar el destino usando OriginClient
+        OriginDTO originDTO = originClient.getOriginByName(hostDTO.getOriginName());
+        if (originDTO == null) {
+            throw new RuntimeException("El destino con el nombre " + hostDTO.getOriginName() + " no existe");
+        }
+
         // Actualizar campos del alojamiento existente
         existingHost.setName(hostDTO.getName());
         existingHost.setRating(hostDTO.getRating());
@@ -68,6 +90,7 @@ public class HostServiceImpl implements HostService {
         existingHost.setMaximumCapacity(hostDTO.getMaximumCapacity());
         existingHost.setLatitude(hostDTO.getLatitude());
         existingHost.setLongitude(hostDTO.getLongitude());
+        existingHost.setOriginName(hostDTO.getOriginName());
 
         // Actualizar o guardar la feature
         Feature feature = featureService.save(featureDTO);
@@ -91,6 +114,7 @@ public class HostServiceImpl implements HostService {
                 .longitude(hostDTO.getLongitude())
                 .picture(picture)
                 .feature(feature)
+                .originName(hostDTO.getOriginName())
                 .build();
 
         return nuevo;
@@ -99,6 +123,9 @@ public class HostServiceImpl implements HostService {
     @Override
     public void deleteByName(String name) {
         Host existingHost = findByName(name);
+        if (existingHost == null) {
+            throw new RuntimeException("El alojamiento con el nombre " + name + " no existe");
+        }
         hostRepository.delete(existingHost);
     }
 

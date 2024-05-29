@@ -18,31 +18,34 @@ public class PictureServiceImpl implements PictureService {
     private final PictureRepository pictureRepository;
 
     @Override
-    public Picture save(PictureDTO pictureDTO){
+    public Picture save(PictureDTO pictureDTO) {
+        Picture picture = Picture.builder()
+                .name(pictureDTO.getDescription() != null ? pictureDTO.getDescription() : "Default Picture")
+                .path(pictureDTO.getUrl())
+                .build();
+        return pictureRepository.save(picture);
+    }
+
+    @Override
+    public List<Picture> findAll() {
+        return pictureRepository.findAll();
+    }
+
+    // @Override
+    // public Picture findById(Integer id) {
+    // return pictureRepository.findById(Long.valueOf(id)).orElse(null);
+    // }
+
+    @Override
+    public Picture update(PictureDTO pictureDTO) {
         return pictureRepository.save(factory(pictureDTO));
     }
 
     @Override
-    public List<Picture> findAll(){
-        return pictureRepository.findAll();
-    }
-
-    @Override
-    public Picture findById(Integer id){
-        return pictureRepository.findById(Long.valueOf(id)).orElse(null);
-    }
-
-
-    @Override
-    public Picture update(PictureDTO pictureDTO){
-        return pictureRepository.save( factory(pictureDTO) );
-    }
-
-    @Override
-    public Picture factory(PictureDTO pictureDTO){
+    public Picture factory(PictureDTO pictureDTO) {
         Picture nuevo = Picture.builder()
                 .name(pictureDTO.getName())
-                .path(pictureDTO.getPath())
+                .path(pictureDTO.getUrl())
                 .build();
 
         return nuevo;

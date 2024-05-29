@@ -22,29 +22,34 @@ public class FeatureServiceImpl implements FeatureService {
     private final HostRepository hostRepository;
 
     @Override
-    public Feature save(FeatureDTO featureDTO){
-
-        return featureRepository.save(factory(featureDTO));
+    public Feature save(FeatureDTO featureDTO) {
+        Feature feature = Feature.builder()
+                .hasBuffet(featureDTO.getHasBuffet() != null ? featureDTO.getHasBuffet() : false)
+                .hasFridge(featureDTO.getHasFridge() != null ? featureDTO.getHasFridge() : false)
+                .hasSwimmingPool(featureDTO.getHasSwimmingPool() != null ? featureDTO.getHasSwimmingPool() : false)
+                .hasWifi(featureDTO.getHasWifi() != null ? featureDTO.getHasWifi() : false)
+                .build();
+        return featureRepository.save(feature);
     }
 
     @Override
-    public List<Feature> findAll(){
+    public List<Feature> findAll() {
         return featureRepository.findAll();
     }
 
     @Override
-    public Feature update(FeatureDTO featureDTO){
-        return featureRepository.save( factory(featureDTO) );
+    public Feature update(FeatureDTO featureDTO) {
+        return featureRepository.save(factory(featureDTO));
     }
 
     @Override
-    public Feature factory(FeatureDTO featureDTO){
+    public Feature factory(FeatureDTO featureDTO) {
         Feature nuevo = Feature.builder()
-            .hasSwimmingPool(featureDTO.getHasSwimmingPool())
-            .hasBuffet(featureDTO.getHasBuffet())
-            .hasWifi(featureDTO.getHasBuffet())
-            .hasFridge(featureDTO.getHasFridge())
-            .build();
+                .hasSwimmingPool(featureDTO.getHasSwimmingPool())
+                .hasBuffet(featureDTO.getHasBuffet())
+                .hasWifi(featureDTO.getHasBuffet())
+                .hasFridge(featureDTO.getHasFridge())
+                .build();
 
         return nuevo;
     }

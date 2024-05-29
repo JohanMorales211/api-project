@@ -19,15 +19,14 @@ public class Feature {
     private Integer id;
 
     @Column(nullable = false)
-    private Boolean hasSwimmingPool;
-
-    @Column(nullable = false)
     private Boolean hasBuffet;
-
-    @Column(nullable = false)
-    private Boolean hasWifi;
 
     @Column(nullable = false)
     private Boolean hasFridge;
 
+    @Column(nullable = false)
+    private Boolean hasSwimmingPool;
+
+    @Column(nullable = false)
+    private Boolean hasWifi;
 }

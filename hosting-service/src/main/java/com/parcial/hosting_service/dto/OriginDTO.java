@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class Origin {
+public class OriginDTO {
     private String name;
     private String description;
 }

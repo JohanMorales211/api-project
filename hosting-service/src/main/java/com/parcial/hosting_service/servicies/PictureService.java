@@ -12,7 +12,7 @@ public interface PictureService {
 
     public List<Picture> findAll();
 
-    public Picture findById(Integer id);
+    // public Picture findById(Integer id);
 
     public Picture update(PictureDTO pictureDTO);
 

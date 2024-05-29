@@ -22,8 +22,16 @@ public class HostController {
 
     @PostMapping
     public ResponseEntity<Response<Host>> save(@RequestBody RequestDTO requestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(new Response<>("Alojamiento creado correctamente",
-                hostService.save(requestDTO.getHostDTO(), requestDTO.getFeatureDTO(), requestDTO.getPictureDTO())));
+        try {
+            Host savedHost = hostService.save(
+                    requestDTO.getHostDTO(),
+                    requestDTO.getFeatureDTO(),
+                    requestDTO.getPictureDTO());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new Response<>("Alojamiento creado correctamente", savedHost));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new Response<>(e.getMessage(), null));
+        }
     }
 
     @GetMapping
@@ -32,23 +40,39 @@ public class HostController {
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<Response<Host>> findAll(@PathVariable String name) {
-        return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", hostService.findByName(name)));
+    public ResponseEntity<Response<Host>> findByName(@PathVariable String name) {
+        Host host = hostService.findByName(name);
+        if (host != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", host));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Response<>("Alojamiento no encontrado", null));
+        }
     }
 
     @PutMapping("/{name}")
     public ResponseEntity<Response<Host>> update(@PathVariable String name, @RequestBody RequestDTO requestDTO) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new Response<>("Alojamiento actualizado correctamente",
-                        hostService.update(name, requestDTO.getHostDTO(), requestDTO.getFeatureDTO(),
-                                requestDTO.getPictureDTO())));
+        try {
+            Host updatedHost = hostService.update(
+                    name,
+                    requestDTO.getHostDTO(),
+                    requestDTO.getFeatureDTO(),
+                    requestDTO.getPictureDTO());
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new Response<>("Alojamiento actualizado correctamente", updatedHost));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Response<>(e.getMessage(), null));
+        }
     }
 
     @DeleteMapping("/{name}")
     public ResponseEntity<Response<String>> delete(@PathVariable String name) {
-        hostService.deleteByName(name);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new Response<>("Alojamiento eliminado correctamente", ""));
+        try {
+            hostService.deleteByName(name);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new Response<>("Alojamiento eliminado correctamente", ""));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Response<>(e.getMessage(), ""));
+        }
     }
 
 }

@@ -36,6 +36,9 @@ public class Host {
     @Column(nullable = false)
     private String longitude;
 
+    @Column(nullable = false)
+    private String originName;
+
     @OneToOne(optional = true)
     @JoinColumn(name = "pictures", referencedColumnName = "id")
     private Picture picture;

@@ -10,4 +10,5 @@ public class HostDTO {
     private Integer maximumCapacity;
     private String latitude;
     private String longitude;
+    private String originName;
 }
