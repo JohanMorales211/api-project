@@ -36,35 +36,52 @@ public class HostServiceImpl implements HostService {
     private final PictureService pictureService;
 
     @Override
-    public Host save(HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO){
+    public Host save(HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO) {
         Optional<Host> guardado = hostRepository.findByName(hostDTO.getName());
 
-        if(guardado.isPresent()){
-            throw new RuntimeException("El alojamiento con el nombre"+hostDTO.getName()+" ya existe");
+        if (guardado.isPresent()) {
+            throw new RuntimeException("El alojamiento con el nombre " + hostDTO.getName() + " ya existe");
         }
         Feature feature = featureService.save(featureDTO);
         Picture picture = pictureService.save(pictureDTO);
         return hostRepository.save(factory(hostDTO, feature, picture));
 
-
     }
 
     @Override
-    public List<Host> findAll(){
+    public List<Host> findAll() {
         return hostRepository.findAll();
     }
 
-    public Host findByName(String name){
+    public Host findByName(String name) {
         return hostRepository.findByName(name).orElse(null);
     }
 
     @Override
-    public Host update(HostDTO hostDTO, Feature feature, Picture picture){
-        return hostRepository.save( factory(hostDTO, feature, picture) );
+    public Host update(String name, HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO) {
+        Host existingHost = findByName(name);
+
+        // Actualizar campos del alojamiento existente
+        existingHost.setName(hostDTO.getName());
+        existingHost.setRating(hostDTO.getRating());
+        existingHost.setPrice(hostDTO.getPrice());
+        existingHost.setMaximumCapacity(hostDTO.getMaximumCapacity());
+        existingHost.setLatitude(hostDTO.getLatitude());
+        existingHost.setLongitude(hostDTO.getLongitude());
+
+        // Actualizar o guardar la feature
+        Feature feature = featureService.save(featureDTO);
+        existingHost.setFeature(feature);
+
+        // Actualizar o guardar la imagen
+        Picture picture = pictureService.save(pictureDTO);
+        existingHost.setPicture(picture);
+
+        return hostRepository.save(existingHost);
     }
 
     @Override
-    public Host factory(HostDTO hostDTO, Feature feature, Picture picture){
+    public Host factory(HostDTO hostDTO, Feature feature, Picture picture) {
         Host nuevo = Host.builder()
                 .name(hostDTO.getName())
                 .rating(hostDTO.getRating())
@@ -78,26 +95,23 @@ public class HostServiceImpl implements HostService {
 
         return nuevo;
     }
-    private void validarNombreDestino(String nombreDestino){
 
-
-        Object respuesta = rabbitTemplate.convertSendAndReceive(Constantes.EXCHANGE, Constantes.ROUTING_KEY, nombreDestino);
-
-
-        if(Objects.isNull(respuesta)){
-            throw new RuntimeException("Hubo un error recuperando la información del destino");
-        }
-
-
-        boolean existe = (Boolean) respuesta;
-
-
-        if(!existe){
-            throw new RuntimeException("El destino con el nomnre : "+nombreDestino+" no existe");
-        }
-
-
+    @Override
+    public void deleteByName(String name) {
+        Host existingHost = findByName(name);
+        hostRepository.delete(existingHost);
     }
 
+    private void validarNombreDestino(String nombreDestino) {
+        Object respuesta = rabbitTemplate.convertSendAndReceive(Constantes.EXCHANGE, Constantes.ROUTING_KEY,
+                nombreDestino);
+        if (Objects.isNull(respuesta)) {
+            throw new RuntimeException("Hubo un error recuperando la información del destino");
+        }
+        boolean existe = (Boolean) respuesta;
+        if (!existe) {
+            throw new RuntimeException("El destino con el nomnre : " + nombreDestino + " no existe");
+        }
+    }
 
 }

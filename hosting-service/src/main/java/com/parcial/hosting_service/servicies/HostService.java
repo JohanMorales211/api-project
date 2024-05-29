@@ -17,7 +17,9 @@ public interface HostService {
 
     public Host findByName(String name);
 
-    public Host update(HostDTO hostDTO, Feature feature, Picture picture);
+    public Host update(String name, HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO);
+
+    void deleteByName(String name);
 
     public Host factory(HostDTO hostDTO, Feature feature, Picture picture);
 

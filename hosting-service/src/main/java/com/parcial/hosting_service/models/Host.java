@@ -44,6 +44,4 @@ public class Host {
     @JoinColumn(name = "features", referencedColumnName = "id")
     private Feature feature;
 
-
-
 }

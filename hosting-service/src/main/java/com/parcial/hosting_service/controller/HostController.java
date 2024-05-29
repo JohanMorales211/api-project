@@ -21,18 +21,34 @@ public class HostController {
     private final HostService hostService;
 
     @PostMapping
-    public ResponseEntity<Response<Host>> save(@RequestBody RequestDTO requestDTO){
-        return ResponseEntity.status(HttpStatus.CREATED).body( new Response<>("Alojamiento creado correctamente", hostService.save(requestDTO.getHostDTO(), requestDTO.getFeatureDTO(), requestDTO.getPictureDTO())) );
+    public ResponseEntity<Response<Host>> save(@RequestBody RequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(new Response<>("Alojamiento creado correctamente",
+                hostService.save(requestDTO.getHostDTO(), requestDTO.getFeatureDTO(), requestDTO.getPictureDTO())));
     }
 
     @GetMapping
-    public ResponseEntity<Response<List<Host>>> findAll(){
-        return ResponseEntity.status(HttpStatus.OK).body( new Response<>("", hostService.findAll()) );
+    public ResponseEntity<Response<List<Host>>> findAll() {
+        return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", hostService.findAll()));
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<Response<Host>> findAll(@PathVariable String name){
-        return ResponseEntity.status(HttpStatus.OK).body( new Response<>("", hostService.findByName(name)) );
+    public ResponseEntity<Response<Host>> findAll(@PathVariable String name) {
+        return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", hostService.findByName(name)));
+    }
+
+    @PutMapping("/{name}")
+    public ResponseEntity<Response<Host>> update(@PathVariable String name, @RequestBody RequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new Response<>("Alojamiento actualizado correctamente",
+                        hostService.update(name, requestDTO.getHostDTO(), requestDTO.getFeatureDTO(),
+                                requestDTO.getPictureDTO())));
+    }
+
+    @DeleteMapping("/{name}")
+    public ResponseEntity<Response<String>> delete(@PathVariable String name) {
+        hostService.deleteByName(name);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new Response<>("Alojamiento eliminado correctamente", ""));
     }
 
 }

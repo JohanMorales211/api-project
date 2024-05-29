@@ -12,34 +12,28 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
 @Configuration
 public class MessagingConfig {
-
 
     @Bean
     public Queue queue() {
         return new Queue(Constantes.QUEUE);
     }
 
-
     @Bean
     public TopicExchange exchange() {
         return new TopicExchange(Constantes.EXCHANGE);
     }
-
 
     @Bean
     public Binding binding(Queue queue, TopicExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with(Constantes.ROUTING_KEY);
     }
 
-
     @Bean
     public MessageConverter converter() {
         return new Jackson2JsonMessageConverter();
     }
-
 
     @Bean
     public AmqpTemplate template(ConnectionFactory connectionFactory) {
@@ -48,4 +42,3 @@ public class MessagingConfig {
         return rabbitTemplate;
     }
 }
-
