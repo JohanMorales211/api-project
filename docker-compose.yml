@@ -158,10 +158,9 @@ services:
     ports:
       - "9095:9095"
     environment:
-      eureka.client.service-url.defaultZone: http://discovery-server:8761/eureka
-      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:9090/realms/CHICLE
-      spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://keycloak:9090/realms/CHICLE/protocol/openid-connect/certs
-      keycloack.admin-url: http://keycloak:9090/admin/realms/tutorial-api
+      eureka.client.service-url.defaultZone: http://eureka-service:8761/eureka
+      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:9090/realms/tutorial-api
+      spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://keycloak:9090/realms/tutorial-api/protocol/openid-connect/certs
     links:
       - eureka-service
 

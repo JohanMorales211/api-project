@@ -1,5 +1,4 @@
 package com.parcial.gateway_service.controller;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +10,7 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/api/test")
 public class GatewayController {
+
     @GetMapping("/anonymous")
     public Mono<String> getAnonymous() {
         return Mono.just("Hola anónimo!");
