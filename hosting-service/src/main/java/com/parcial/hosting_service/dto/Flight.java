@@ -20,6 +20,6 @@ public class Flight {
     private Integer durationHours;
     private Integer passengersNumber;
     private OriginDTO origin;
-    private Destiny destiny;
+    private DestinyDTO destiny;
 
 }

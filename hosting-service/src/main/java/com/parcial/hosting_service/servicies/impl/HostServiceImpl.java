@@ -1,10 +1,10 @@
 package com.parcial.hosting_service.servicies.impl;
 
-import com.parcial.hosting_service.clients.OriginClient;
+import com.parcial.hosting_service.clients.DestinyClient;
 import com.parcial.hosting_service.config.Constantes;
+import com.parcial.hosting_service.dto.DestinyDTO;
 import com.parcial.hosting_service.dto.FeatureDTO;
 import com.parcial.hosting_service.dto.HostDTO;
-import com.parcial.hosting_service.dto.OriginDTO;
 import com.parcial.hosting_service.dto.PictureDTO;
 import com.parcial.hosting_service.models.Feature;
 import com.parcial.hosting_service.models.Host;
@@ -38,7 +38,7 @@ public class HostServiceImpl implements HostService {
     private final PictureService pictureService;
 
     @Autowired
-    private final OriginClient originClient;
+    private final DestinyClient destinyClient;
 
     @Override
     public Host save(HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO) {
@@ -48,10 +48,10 @@ public class HostServiceImpl implements HostService {
             throw new RuntimeException("El alojamiento con el nombre " + hostDTO.getName() + " ya existe");
         }
 
-        // Validar el destino usando OriginClient
-        OriginDTO originDTO = originClient.getOriginByName(hostDTO.getOriginName());
-        if (originDTO == null) {
-            throw new RuntimeException("El destino con el nombre " + hostDTO.getOriginName() + " no existe");
+        // Validar el destino usando destinyClient
+        DestinyDTO destinyDTO = destinyClient.getDestinyByName(hostDTO.getDestinyName());
+        if (destinyDTO == null) {
+            throw new RuntimeException("El destino con el nombre " + hostDTO.getDestinyName() + " no existe");
         }
 
         Feature feature = featureService.save(featureDTO);
@@ -77,10 +77,10 @@ public class HostServiceImpl implements HostService {
             throw new RuntimeException("El alojamiento con el nombre " + name + " no existe");
         }
 
-        // Validar el destino usando OriginClient
-        OriginDTO originDTO = originClient.getOriginByName(hostDTO.getOriginName());
-        if (originDTO == null) {
-            throw new RuntimeException("El destino con el nombre " + hostDTO.getOriginName() + " no existe");
+        // Validar el destino usando destinyClient
+        DestinyDTO destinyDTO = destinyClient.getDestinyByName(hostDTO.getDestinyName());
+        if (destinyDTO == null) {
+            throw new RuntimeException("El destino con el nombre " + hostDTO.getDestinyName() + " no existe");
         }
 
         // Actualizar campos del alojamiento existente
@@ -90,7 +90,7 @@ public class HostServiceImpl implements HostService {
         existingHost.setMaximumCapacity(hostDTO.getMaximumCapacity());
         existingHost.setLatitude(hostDTO.getLatitude());
         existingHost.setLongitude(hostDTO.getLongitude());
-        existingHost.setOriginName(hostDTO.getOriginName());
+        existingHost.setDestinyName(hostDTO.getDestinyName());
 
         // Actualizar o guardar la feature
         Feature feature = featureService.save(featureDTO);
@@ -114,7 +114,7 @@ public class HostServiceImpl implements HostService {
                 .longitude(hostDTO.getLongitude())
                 .picture(picture)
                 .feature(feature)
-                .originName(hostDTO.getOriginName())
+                .destinyName(hostDTO.getDestinyName())
                 .build();
 
         return nuevo;

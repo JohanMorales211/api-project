@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class Destiny {
+public class DestinyDTO {
     private String name;
     private String description;
 }
