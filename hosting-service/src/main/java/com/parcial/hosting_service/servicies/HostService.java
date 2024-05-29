@@ -17,6 +17,8 @@ public interface HostService {
 
     public Host findByName(String name);
 
+    List<Host> findByDestinyName(String destinyName);
+
     public Host update(String name, HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO);
 
     void deleteByName(String name);

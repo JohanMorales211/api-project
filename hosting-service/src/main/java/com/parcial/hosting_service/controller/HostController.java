@@ -49,6 +49,17 @@ public class HostController {
         }
     }
 
+    @GetMapping("/destiny/{destinyName}")
+    public ResponseEntity<Response<List<Host>>> findByDestinyName(@PathVariable String destinyName) {
+        List<Host> hosts = hostService.findByDestinyName(destinyName);
+        if (hosts != null && !hosts.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", hosts));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new Response<>("No se encontraron alojamientos para el destino especificado", null));
+        }
+    }
+
     @PutMapping("/{name}")
     public ResponseEntity<Response<Host>> update(@PathVariable String name, @RequestBody RequestDTO requestDTO) {
         try {

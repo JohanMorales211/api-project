@@ -70,6 +70,11 @@ public class HostServiceImpl implements HostService {
     }
 
     @Override
+    public List<Host> findByDestinyName(String destinyName) {
+        return hostRepository.findByDestinyName(destinyName);
+    }
+
+    @Override
     public Host update(String name, HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO) {
         Host existingHost = findByName(name);
 
