@@ -1,7 +1,9 @@
 package com.parcial.hosting_service.servicies.impl;
 
+import com.parcial.hosting_service.clients.CommentClient;
 import com.parcial.hosting_service.clients.DestinyClient;
 import com.parcial.hosting_service.config.Constantes;
+import com.parcial.hosting_service.dto.CommentDTO;
 import com.parcial.hosting_service.dto.DestinyDTO;
 import com.parcial.hosting_service.dto.FeatureDTO;
 import com.parcial.hosting_service.dto.HostDTO;
@@ -39,6 +41,9 @@ public class HostServiceImpl implements HostService {
     @Autowired
     private final DestinyClient destinyClient;
 
+    @Autowired
+    private final CommentClient commentClient;
+
     @Override
     public Host save(HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO) {
         Optional<Host> guardado = hostRepository.findByName(hostDTO.getName());
@@ -56,12 +61,16 @@ public class HostServiceImpl implements HostService {
         Feature feature = featureService.save(featureDTO);
         Picture picture = pictureService.save(pictureDTO);
 
-        return hostRepository.save(factory(hostDTO, feature, picture));
+        Host nuevoHost = factory(hostDTO, feature, picture);
+        nuevoHost.setComments(List.of());
+
+        return hostRepository.save(nuevoHost);
     }
 
     @Override
     public List<Host> findAll() {
-        return hostRepository.findAll();
+        List<Host> hosts = hostRepository.findAll();
+        return hosts.stream().map(this::attachComments).toList();
     }
 
     public Host findByName(String name) {
@@ -104,12 +113,15 @@ public class HostServiceImpl implements HostService {
         Picture picture = pictureService.save(pictureDTO);
         existingHost.setPicture(picture);
 
+        // Mantener los comentarios existentes
+        existingHost.setComments(getCommentsByHostId(existingHost.getId()));
+
         return hostRepository.save(existingHost);
     }
 
     @Override
     public Host factory(HostDTO hostDTO, Feature feature, Picture picture) {
-        Host nuevo = Host.builder()
+        return Host.builder()
                 .name(hostDTO.getName())
                 .rating(hostDTO.getRating())
                 .price(hostDTO.getPrice())
@@ -119,9 +131,8 @@ public class HostServiceImpl implements HostService {
                 .picture(picture)
                 .feature(feature)
                 .destinyName(hostDTO.getDestinyName())
+                .comments(hostDTO.getComments() != null ? hostDTO.getComments() : List.of())
                 .build();
-
-        return nuevo;
     }
 
     @Override
@@ -141,8 +152,20 @@ public class HostServiceImpl implements HostService {
         }
         boolean existe = (Boolean) respuesta;
         if (!existe) {
-            throw new RuntimeException("El destino con el nomnre : " + nombreDestino + " no existe");
+            throw new RuntimeException("El destino con el nombre: " + nombreDestino + " no existe");
         }
+    }
+
+    private Host attachComments(Host host) {
+        if (host != null) {
+            List<CommentDTO> comments = getCommentsByHostId(host.getId());
+            host.setComments(comments);
+        }
+        return host;
+    }
+
+    private List<CommentDTO> getCommentsByHostId(Integer hostId) {
+        return commentClient.findByHostId(hostId);
     }
 
 }

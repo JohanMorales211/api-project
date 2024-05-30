@@ -11,7 +11,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -45,4 +47,11 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.deleteById(id);
     }
 
+    @Override
+    public List<CommentDTO> findByHostId(Integer hostId) {
+        List<Comment> comments = commentRepository.findByHostId(hostId);
+        return comments.stream()
+                .map(comment -> new CommentDTO(comment))
+                .collect(Collectors.toList());
+    }
 }

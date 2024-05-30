@@ -5,6 +5,9 @@ import com.parcial.user_service.dto.Response;
 import com.parcial.user_service.models.Comment;
 import com.parcial.user_service.services.CommentService;
 import lombok.AllArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,18 @@ public class CommentController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new Response<>(e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/host/{hostId}")
+    public ResponseEntity<Response<List<CommentDTO>>> findByHostId(@PathVariable Integer hostId) {
+        try {
+            List<CommentDTO> comments = commentService.findByHostId(hostId);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new Response<>("Comentarios obtenidos correctamente", comments));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new Response<>(e.getMessage(), List.of()));
         }
     }
 
