@@ -12,4 +12,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
 
     @Query(value = "SELECT * FROM Reservation r WHERE r.user = :user", nativeQuery = true)
     List<Reservation> findByUserId(String user);
+
+    List<Reservation> findByUserDocument(String userDocument);
 }
