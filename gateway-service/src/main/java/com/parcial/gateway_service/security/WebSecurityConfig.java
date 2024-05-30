@@ -18,10 +18,13 @@ public class WebSecurityConfig {
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
         http.authorizeExchange(exchanges -> exchanges
+                .pathMatchers("/api/test/anonymous").permitAll()
+                .pathMatchers("/api/test/admin").hasRole(ADMIN)
+                .pathMatchers("/api/test/user").hasAnyRole(ADMIN, USER)
                 .pathMatchers("/api/auth/**").permitAll() // Authentication routes
-                .pathMatchers("/api/client/**").hasAnyRole(ADMIN, USER) // User related routes
+                .pathMatchers("/api/client/**").hasAnyRole(ADMIN,USER) // User related routes
                 .pathMatchers("/api/hostings/**").hasRole(ADMIN) // Hosting management routes
-                .pathMatchers("/api/reservation/**").hasAnyRole(ADMIN, USER) // Reservation management routes
+                .pathMatchers("/api/reservation/**").hasAnyRole(ADMIN,USER) // Reservation management routes
                 .pathMatchers("/api/flights/**").hasRole(ADMIN) // Flight management routes
                 .pathMatchers("/api/destiny/**").hasRole(ADMIN) // Destiny management routes
                 .pathMatchers("/api/origin/**").hasRole(ADMIN) // Origin management routes
