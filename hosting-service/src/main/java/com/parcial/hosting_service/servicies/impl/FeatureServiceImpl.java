@@ -3,7 +3,6 @@ package com.parcial.hosting_service.servicies.impl;
 import com.parcial.hosting_service.dto.FeatureDTO;
 import com.parcial.hosting_service.models.Feature;
 import com.parcial.hosting_service.reposotories.FeatureRepository;
-import com.parcial.hosting_service.reposotories.HostRepository;
 import com.parcial.hosting_service.servicies.FeatureService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +16,6 @@ public class FeatureServiceImpl implements FeatureService {
 
     @Autowired
     private final FeatureRepository featureRepository;
-
-    @Autowired
-    private final HostRepository hostRepository;
 
     @Override
     public Feature save(FeatureDTO featureDTO) {

@@ -34,11 +34,6 @@ public class HostController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<Response<List<Host>>> findAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(new Response<>("", hostService.findAll()));
-    }
-
     @GetMapping("/{name}")
     public ResponseEntity<Response<Host>> findByName(@PathVariable String name) {
         Host host = hostService.findByName(name);

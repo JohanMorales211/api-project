@@ -13,5 +13,4 @@ public class HostDTO {
     private String latitude;
     private String longitude;
     private String destinyName;
-    private List<CommentDTO> comments;
 }
