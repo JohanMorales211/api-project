@@ -1,5 +1,9 @@
 package com.parcial.hosting_service.models;
 
+import java.util.List;
+
+import com.parcial.hosting_service.dto.CommentDTO;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,6 +40,9 @@ public class Host {
     @Column(nullable = false)
     private String longitude;
 
+    @Column(nullable = false)
+    private String destinyName;
+
     @OneToOne(optional = true)
     @JoinColumn(name = "pictures", referencedColumnName = "id")
     private Picture picture;
@@ -44,6 +51,7 @@ public class Host {
     @JoinColumn(name = "features", referencedColumnName = "id")
     private Feature feature;
 
-
+    @Transient
+    private List<CommentDTO> comments;
 
 }

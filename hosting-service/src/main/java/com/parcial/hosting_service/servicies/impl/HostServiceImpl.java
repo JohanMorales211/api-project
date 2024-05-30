@@ -1,6 +1,10 @@
 package com.parcial.hosting_service.servicies.impl;
 
+import com.parcial.hosting_service.clients.CommentClient;
+import com.parcial.hosting_service.clients.DestinyClient;
 import com.parcial.hosting_service.config.Constantes;
+import com.parcial.hosting_service.dto.CommentDTO;
+import com.parcial.hosting_service.dto.DestinyDTO;
 import com.parcial.hosting_service.dto.FeatureDTO;
 import com.parcial.hosting_service.dto.HostDTO;
 import com.parcial.hosting_service.dto.PictureDTO;
@@ -15,7 +19,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,37 +38,90 @@ public class HostServiceImpl implements HostService {
     @Autowired
     private final PictureService pictureService;
 
+    @Autowired
+    private final DestinyClient destinyClient;
+
+    @Autowired
+    private final CommentClient commentClient;
+
     @Override
-    public Host save(HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO){
+    public Host save(HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO) {
         Optional<Host> guardado = hostRepository.findByName(hostDTO.getName());
 
-        if(guardado.isPresent()){
-            throw new RuntimeException("El alojamiento con el nombre"+hostDTO.getName()+" ya existe");
+        if (guardado.isPresent()) {
+            throw new RuntimeException("El alojamiento con el nombre " + hostDTO.getName() + " ya existe");
         }
+
+        // Validar el destino usando destinyClient
+        DestinyDTO destinyDTO = destinyClient.getDestinyByName(hostDTO.getDestinyName());
+        if (destinyDTO == null) {
+            throw new RuntimeException("El destino con el nombre " + hostDTO.getDestinyName() + " no existe");
+        }
+
         Feature feature = featureService.save(featureDTO);
         Picture picture = pictureService.save(pictureDTO);
-        return hostRepository.save(factory(hostDTO, feature, picture));
 
+        Host nuevoHost = factory(hostDTO, feature, picture);
+        nuevoHost.setComments(List.of());
 
+        return hostRepository.save(nuevoHost);
     }
 
     @Override
-    public List<Host> findAll(){
-        return hostRepository.findAll();
+    public List<Host> findAll() {
+        List<Host> hosts = hostRepository.findAll();
+        return hosts.stream().map(this::attachComments).toList();
     }
 
-    public Host findByName(String name){
+    public Host findByName(String name) {
         return hostRepository.findByName(name).orElse(null);
     }
 
     @Override
-    public Host update(HostDTO hostDTO, Feature feature, Picture picture){
-        return hostRepository.save( factory(hostDTO, feature, picture) );
+    public List<Host> findByDestinyName(String destinyName) {
+        return hostRepository.findByDestinyName(destinyName);
     }
 
     @Override
-    public Host factory(HostDTO hostDTO, Feature feature, Picture picture){
-        Host nuevo = Host.builder()
+    public Host update(String name, HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO) {
+        Host existingHost = findByName(name);
+
+        if (existingHost == null) {
+            throw new RuntimeException("El alojamiento con el nombre " + name + " no existe");
+        }
+
+        // Validar el destino usando destinyClient
+        DestinyDTO destinyDTO = destinyClient.getDestinyByName(hostDTO.getDestinyName());
+        if (destinyDTO == null) {
+            throw new RuntimeException("El destino con el nombre " + hostDTO.getDestinyName() + " no existe");
+        }
+
+        // Actualizar campos del alojamiento existente
+        existingHost.setName(hostDTO.getName());
+        existingHost.setRating(hostDTO.getRating());
+        existingHost.setPrice(hostDTO.getPrice());
+        existingHost.setMaximumCapacity(hostDTO.getMaximumCapacity());
+        existingHost.setLatitude(hostDTO.getLatitude());
+        existingHost.setLongitude(hostDTO.getLongitude());
+        existingHost.setDestinyName(hostDTO.getDestinyName());
+
+        // Actualizar o guardar la feature
+        Feature feature = featureService.save(featureDTO);
+        existingHost.setFeature(feature);
+
+        // Actualizar o guardar la imagen
+        Picture picture = pictureService.save(pictureDTO);
+        existingHost.setPicture(picture);
+
+        // Mantener los comentarios existentes
+        existingHost.setComments(getCommentsByHostId(existingHost.getId()));
+
+        return hostRepository.save(existingHost);
+    }
+
+    @Override
+    public Host factory(HostDTO hostDTO, Feature feature, Picture picture) {
+        return Host.builder()
                 .name(hostDTO.getName())
                 .rating(hostDTO.getRating())
                 .price(hostDTO.getPrice())
@@ -74,30 +130,42 @@ public class HostServiceImpl implements HostService {
                 .longitude(hostDTO.getLongitude())
                 .picture(picture)
                 .feature(feature)
+                .destinyName(hostDTO.getDestinyName())
+                .comments(hostDTO.getComments() != null ? hostDTO.getComments() : List.of())
                 .build();
-
-        return nuevo;
     }
-    private void validarNombreDestino(String nombreDestino){
 
+    @Override
+    public void deleteByName(String name) {
+        Host existingHost = findByName(name);
+        if (existingHost == null) {
+            throw new RuntimeException("El alojamiento con el nombre " + name + " no existe");
+        }
+        hostRepository.delete(existingHost);
+    }
 
-        Object respuesta = rabbitTemplate.convertSendAndReceive(Constantes.EXCHANGE, Constantes.ROUTING_KEY, nombreDestino);
-
-
-        if(Objects.isNull(respuesta)){
+    private void validarNombreDestino(String nombreDestino) {
+        Object respuesta = rabbitTemplate.convertSendAndReceive(Constantes.EXCHANGE, Constantes.ROUTING_KEY,
+                nombreDestino);
+        if (Objects.isNull(respuesta)) {
             throw new RuntimeException("Hubo un error recuperando la información del destino");
         }
-
-
         boolean existe = (Boolean) respuesta;
-
-
-        if(!existe){
-            throw new RuntimeException("El destino con el nomnre : "+nombreDestino+" no existe");
+        if (!existe) {
+            throw new RuntimeException("El destino con el nombre: " + nombreDestino + " no existe");
         }
-
-
     }
 
+    private Host attachComments(Host host) {
+        if (host != null) {
+            List<CommentDTO> comments = getCommentsByHostId(host.getId());
+            host.setComments(comments);
+        }
+        return host;
+    }
+
+    private List<CommentDTO> getCommentsByHostId(Integer hostId) {
+        return commentClient.findByHostId(hostId);
+    }
 
 }

@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class PictureDTO {
     private String name;
-    private String path;
+    private String url;
+    private String description;
 }

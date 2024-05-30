@@ -6,6 +6,7 @@ import com.parcial.user_service.models.Client;
 import java.util.List;
 
 public interface ClientService {
+    
     Client save(ClientDTO clientDTO);
 
     List<Client> findAll();
@@ -16,9 +17,12 @@ public interface ClientService {
 
     Client update(Long id, ClientDTO clientDTO);
 
-    void deleteById(Long id);
-
     Client factory(ClientDTO clientDTO);
 
     List<Client> findByCity(String city);
+
+    void deleteById(Long id);
+
+    boolean existsById(Long id);
+
 }

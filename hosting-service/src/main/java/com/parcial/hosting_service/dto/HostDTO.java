@@ -1,5 +1,7 @@
 package com.parcial.hosting_service.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -10,4 +12,6 @@ public class HostDTO {
     private Integer maximumCapacity;
     private String latitude;
     private String longitude;
+    private String destinyName;
+    private List<CommentDTO> comments;
 }

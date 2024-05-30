@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class Origin {
-    private String name;
-    private String description;
+public class CommentDTO {
+    private Long clientId;
+    private Integer hostId;
+    private String content;
+    private Integer rating;
 }

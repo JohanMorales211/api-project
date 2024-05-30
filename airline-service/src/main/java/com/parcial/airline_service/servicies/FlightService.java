@@ -19,4 +19,6 @@ public interface FlightService {
 
     public Flight factory(FlightDTO flightDTO, Destiny destiny, Origin origin);
 
+    Flight assignClientToFlight(String plate, Long clientId);
+
 }

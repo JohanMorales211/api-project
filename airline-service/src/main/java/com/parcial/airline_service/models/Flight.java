@@ -10,7 +10,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -69,5 +71,10 @@ public class Flight implements Serializable {
     @MapKeyColumn(name = "seat_number")
     @Column(name = "client_id")
     private Map<Integer, Long> assignedSeats = new HashMap<>();
+
+    @ElementCollection
+    @CollectionTable(name = "flight_clients", joinColumns = @JoinColumn(name = "flight_id"))
+    @Column(name = "client_id")
+    private Set<Long> assignedClients = new HashSet<>();
 
 }

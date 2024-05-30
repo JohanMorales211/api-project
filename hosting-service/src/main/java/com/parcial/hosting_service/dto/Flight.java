@@ -19,7 +19,7 @@ public class Flight {
     private Boolean isDirect;
     private Integer durationHours;
     private Integer passengersNumber;
-    private Origin origin;
-    private Destiny destiny;
+    private OriginDTO origin;
+    private DestinyDTO destiny;
 
 }
