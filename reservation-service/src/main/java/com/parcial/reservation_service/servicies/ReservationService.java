@@ -1,6 +1,5 @@
 package com.parcial.reservation_service.servicies;
 
-
 import com.parcial.reservation_service.dto.ReservationPostDTO;
 import com.parcial.reservation_service.models.Reservation;
 
@@ -23,5 +22,7 @@ public interface ReservationService {
     public void validateUser(String userDocumentNumber);
 
     public void validateFlight(String flightPlate);
+
+    void validateDestination(String destination);
 
 }

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,7 +27,18 @@ public class Reservation {
 
     private String flight;
 
+    private String destination;
+
     @Column(nullable = false)
     private LocalDateTime reservationDate;
+
+    @Column(nullable = false)
+    private LocalDate checkIn;
+
+    @Column(nullable = false)
+    private LocalDate checkOut;
+
+    @Column(nullable = false)
+    private String paymentMethod;
 
 }

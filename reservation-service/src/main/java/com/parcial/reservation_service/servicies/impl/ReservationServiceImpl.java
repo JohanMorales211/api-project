@@ -20,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.print.attribute.standard.Destination;
+
 @Service
 @Slf4j
 @AllArgsConstructor
@@ -34,21 +36,25 @@ public class ReservationServiceImpl implements ReservationService {
         validateHost(reservationPostDTO.hostName());
         validateFlight(reservationPostDTO.flightPlate());
         validateUser(reservationPostDTO.userDocumentNumber());
+        validateDestination(reservationPostDTO.destination());
 
         Reservation reservation = new Reservation();
         reservation.setFlight(reservationPostDTO.flightPlate());
         reservation.setHost(reservationPostDTO.hostName());
         reservation.setUserDocument(reservationPostDTO.userDocumentNumber());
+        reservation.setDestination(reservationPostDTO.destination());
         reservation.setReservationDate(LocalDateTime.now());
+        reservation.setCheckIn(reservationPostDTO.checkIn());
+        reservation.setCheckOut(reservationPostDTO.checkOut());
+        reservation.setPaymentMethod(reservationPostDTO.paymentMethod());
         return reservationRepository.save(reservation);
     }
 
     @Override
     public List<Reservation> findByUserDocumentNumber(String user) {
         validateUser(user);
-        List<Reservation> lista = reservationRepository.findByUserId(user);
-
-        return new ArrayList<>();
+        List<Reservation> reservations = reservationRepository.findByUserDocument(user);
+        return reservations != null ? reservations : new ArrayList<>();
     }
 
     @Override
@@ -58,69 +64,84 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Reservation findById(Integer id) {
-        return reservationRepository.findById(id).orElse(null);
+        return reservationRepository.findById(id)
+                .orElseThrow(() -> new ReservationNotFound("No existe una reserva con el código: " + id));
+    }
+
+    @Override
+    public Integer update(Integer reservationId, ReservationPostDTO reservationPostDTO) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFound("No existe una reserva con el código: " + reservationId));
+
+        validateHost(reservationPostDTO.hostName());
+        validateFlight(reservationPostDTO.flightPlate());
+        validateUser(reservationPostDTO.userDocumentNumber());
+        validateDestination(reservationPostDTO.destination());
+
+        reservation.setFlight(reservationPostDTO.flightPlate());
+        reservation.setHost(reservationPostDTO.hostName());
+        reservation.setUserDocument(reservationPostDTO.userDocumentNumber());
+        reservation.setDestination(reservationPostDTO.destination());
+        reservation.setCheckIn(reservationPostDTO.checkIn());
+        reservation.setCheckOut(reservationPostDTO.checkOut());
+        reservation.setPaymentMethod(reservationPostDTO.paymentMethod());
+        reservation.setReservationDate(LocalDateTime.now());
+
+        return reservationRepository.save(reservation).getId();
     }
 
     @Override
     public void validateFlight(String flightPlate) {
         ResponseEntity<Response<Flight>> responseEntity;
         try {
-
             responseEntity = restTemplate.exchange(
                     "http://gateway-service:8780/api/flights/" + flightPlate,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<Response<Flight>>() {});
+                    new ParameterizedTypeReference<Response<Flight>>() {
+                    });
 
-            if(responseEntity.getStatusCode() == HttpStatus.OK){
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 Flight flight = responseEntity.getBody().getDato();
-                if(flight == null || flight.getId() == null){
-                    throw new RuntimeException("El número " + flightPlate + " no pertenece a ningún flight");
+                if (flight == null || flight.getId() == null) {
+                    throw new RuntimeException("El número " + flightPlate + " no pertenece a ningún vuelo válido.");
                 }
+            } else {
+                throw new RuntimeException(
+                        "No se pudo recuperar la información del vuelo con el número " + flightPlate);
             }
 
-        }catch (HttpClientErrorException e){
-            // Manejar errores específicos del Flight HTTP
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
             throw new RuntimeException("Error en la solicitud: " + e.getMessage());
-        }catch (HttpServerErrorException e){
-            // Manejar errores del servidor
-            throw new RuntimeException("Error en el servidor: " + e.getMessage());
-        }catch (Exception e){
-            // Manejar cualquier otra excepción
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Hubo un error recuperando la información del Flight");
+            throw new RuntimeException("Hubo un error recuperando la información del vuelo.");
         }
     }
-
 
     @Override
     public void validateHost(String hostName) {
         ResponseEntity<Response<Host>> responseEntity;
         try {
-
             responseEntity = restTemplate.exchange(
                     "http://gateway-service:8780/api/hostings/" + hostName,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<Response<Host>>() {});
+                    new ParameterizedTypeReference<Response<Host>>() {
+                    });
 
-            if(responseEntity.getStatusCode() == HttpStatus.OK){
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 Host host = responseEntity.getBody().getDato();
-                if(host == null || host.getId() == null){
-                    throw new RuntimeException("El nombre " + hostName + " no pertenece a ningún host");
+                if (host == null || host.getId() == null) {
+                    throw new RuntimeException("El nombre " + hostName + " no pertenece a ningún alojamiento.");
                 }
             }
 
-        }catch (HttpClientErrorException e){
-            // Manejar errores específicos del Flight HTTP
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
             throw new RuntimeException("Error en la solicitud: " + e.getMessage());
-        }catch (HttpServerErrorException e){
-            // Manejar errores del servidor
-            throw new RuntimeException("Error en el servidor: " + e.getMessage());
-        }catch (Exception e){
-            // Manejar cualquier otra excepción
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Hubo un error recuperando la información del host");
+            throw new RuntimeException("Hubo un error recuperando la información del alojamiento.");
         }
     }
 
@@ -128,49 +149,53 @@ public class ReservationServiceImpl implements ReservationService {
     public void validateUser(String userDocumentNumber) {
         ResponseEntity<Response<User>> responseEntity;
         try {
-
             responseEntity = restTemplate.exchange(
                     "http://gateway-service:8780/api/client/" + userDocumentNumber,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<Response<User>>() {});
+                    new ParameterizedTypeReference<Response<User>>() {
+                    });
 
-            if(responseEntity.getStatusCode() == HttpStatus.OK){
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 User user = responseEntity.getBody().getDato();
-                if(user == null || user.getDocumentNumber() == null){
-                    throw new RuntimeException("El número de documento " + userDocumentNumber + " no pertenece a ningún usuario");
+                if (user == null || user.getDocumentNumber() == null) {
+                    throw new RuntimeException(
+                            "El número de documento " + userDocumentNumber + " no pertenece a ningún usuario.");
                 }
             }
 
-        }catch (HttpClientErrorException e){
-            // Manejar errores específicos del Flight HTTP
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
             throw new RuntimeException("Error en la solicitud: " + e.getMessage());
-        }catch (HttpServerErrorException e){
-            // Manejar errores del servidor
-            throw new RuntimeException("Error en el servidor: " + e.getMessage());
-        }catch (Exception e){
-            // Manejar cualquier otra excepción
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Hubo un error recuperando la información del user");
+            throw new RuntimeException("Hubo un error recuperando la información del usuario.");
         }
-
     }
 
     @Override
-    public Integer update(Integer reservationId, ReservationPostDTO reservationPostDTO) {
-        Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(()-> new ReservationNotFound("No existe una reserva con el código: "+reservationId));
+    public void validateDestination(String destination) {
+        ResponseEntity<Response<Destiny>> responseEntity;
+        try {
+            responseEntity = restTemplate.exchange(
+                    "http://gateway-service:8780/api/destiny/" + destination,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<Response<Destiny>>() {
+                    });
 
-        validateHost(reservationPostDTO.hostName());
-        validateFlight(reservationPostDTO.flightPlate());
-        validateUser(reservationPostDTO.userDocumentNumber());
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                Destiny dest = responseEntity.getBody().getDato();
+                if (dest == null || dest.getName() == null) {
+                    throw new RuntimeException("El destino " + destination + " no pertenece a ningún destino válido.");
+                }
+            }
 
-        reservation.setFlight(reservationPostDTO.flightPlate());
-        reservation.setHost(reservationPostDTO.hostName());
-        reservation.setUserDocument(reservationPostDTO.userDocumentNumber());
-        reservation.setReservationDate(LocalDateTime.now());
-
-        return reservationRepository.save(reservation).getId();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw new RuntimeException("Error en la solicitud: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Hubo un error recuperando la información del destino.");
+        }
     }
-
 
 }
