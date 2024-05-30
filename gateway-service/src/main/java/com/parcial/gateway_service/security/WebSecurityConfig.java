@@ -7,22 +7,26 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
-
 @RequiredArgsConstructor
 @Configuration
 @EnableWebFluxSecurity
 public class WebSecurityConfig {
     public static final String ADMIN = "admin";
     public static final String USER = "user";
+    public static final String ADMIN_HOSTING = "admin_hosting";
     private final JwtAuthConverter jwtAuthConverter;
 
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
         http.authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/api/test/anonymous").permitAll()
-                .pathMatchers("/api/test/admin").hasRole("ADMIN")
-                .pathMatchers("/api/test/user").hasAnyRole("ADMIN", "USER")
-                .anyExchange().authenticated()
+                .pathMatchers("/api/auth/**").permitAll() // Authentication routes
+                .pathMatchers("/api/client/**").hasAnyRole(ADMIN, USER) // User related routes
+                .pathMatchers("/api/hostings/**").hasRole(ADMIN_HOSTING) // Hosting management routes
+                .pathMatchers("/api/reservation/**").hasAnyRole(ADMIN, USER) // Reservation management routes
+                .pathMatchers("/api/flights/**").hasRole(ADMIN) // Flight management routes
+                .pathMatchers("/api/destiny/**").hasRole(ADMIN) // Destiny management routes
+                .pathMatchers("/api/origin/**").hasRole(ADMIN) // Origin management routes
+                .anyExchange().authenticated() // Any other request must be authenticated
         );
 
         http.oauth2ResourceServer(oauth2ResourceServer ->
