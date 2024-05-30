@@ -1,13 +1,10 @@
 package com.parcial.user_service.controller;
 
 import com.parcial.user_service.dto.ClientDTO;
-import com.parcial.user_service.dto.CommentDTO;
 import com.parcial.user_service.dto.Response;
 import com.parcial.user_service.exception.ClienteNoEncontradoException;
 import com.parcial.user_service.models.Client;
-import com.parcial.user_service.models.Comment;
 import com.parcial.user_service.services.ClientService;
-import com.parcial.user_service.services.CommentService;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +19,6 @@ import java.util.List;
 public class ClientController {
 
     private final ClientService clientService;
-    private final CommentService commentService;
 
     @PostMapping
     public ResponseEntity<Response<Client>> save(@RequestBody ClientDTO clientDTO) {
@@ -85,25 +81,4 @@ public class ClientController {
         }
     }
 
-    @PostMapping("/{id}/comment")
-    public ResponseEntity<Response<Comment>> addComment(@PathVariable Long id, @RequestBody CommentDTO commentDTO) {
-        try {
-            // Verifica que el cliente exista antes de agregar el comentario
-            clientService.findById(id);
-
-            // Asegura que el comentario se asocie con el cliente correcto
-            commentDTO.setClientId(id);
-
-            Comment savedComment = commentService.save(commentDTO);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new Response<>("Comentario agregado correctamente", savedComment));
-        } catch (ClienteNoEncontradoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Response<>(e.getMessage(), null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response<>(e.getMessage(), null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new Response<>("Error interno del servidor", null));
-        }
-    }
 }

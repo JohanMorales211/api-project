@@ -13,8 +13,6 @@ public interface HostService {
 
     public Host save(HostDTO hostDTO, FeatureDTO featureDTO, PictureDTO pictureDTO);
 
-    public List<Host> findAll();
-
     public Host findByName(String name);
 
     List<Host> findByDestinyName(String destinyName);
