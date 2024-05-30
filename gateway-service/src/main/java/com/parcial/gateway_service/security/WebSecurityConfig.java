@@ -13,7 +13,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class WebSecurityConfig {
     public static final String ADMIN = "admin";
     public static final String USER = "user";
-    public static final String ADMIN_HOSTING = "admin_hosting";
     private final JwtAuthConverter jwtAuthConverter;
 
     @Bean
@@ -21,7 +20,7 @@ public class WebSecurityConfig {
         http.authorizeExchange(exchanges -> exchanges
                 .pathMatchers("/api/auth/**").permitAll() // Authentication routes
                 .pathMatchers("/api/client/**").hasAnyRole(ADMIN, USER) // User related routes
-                .pathMatchers("/api/hostings/**").hasRole(ADMIN_HOSTING) // Hosting management routes
+                .pathMatchers("/api/hostings/**").hasRole(ADMIN) // Hosting management routes
                 .pathMatchers("/api/reservation/**").hasAnyRole(ADMIN, USER) // Reservation management routes
                 .pathMatchers("/api/flights/**").hasRole(ADMIN) // Flight management routes
                 .pathMatchers("/api/destiny/**").hasRole(ADMIN) // Destiny management routes

@@ -24,7 +24,7 @@ public class GatewayController {
 
         return Mono.just("Hola admin! " + username + " " + email);
     }
-    @GetMapping("/admin_hosting")
+    @GetMapping("/adminhosting")
     public Mono<String> getAdmin_hosting(Principal principal) {
         JwtAuthenticationToken token = (JwtAuthenticationToken) principal;
         String username = (String) token.getTokenAttributes().get("name");
