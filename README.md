@@ -65,5 +65,3 @@ Una vez que los servicios estén en funcionamiento, puedes acceder a la interfaz
 </div>
 
 ---
-
-**¡Empieza a gestionar tus viajes de forma eficiente con este sistema de microservicios!** ✨
