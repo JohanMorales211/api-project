@@ -31,7 +31,7 @@ Este proyecto es un completo sistema de gestión de viajes desarrollado con micr
 
 ## Instalación y Ejecución 🛠️
 
-1. **Clona el repositorio:** `git clone https://github.com/tu-repositorio/sistema-de-viajes.git`
+1. **Clona el repositorio:** `git clone https://github.com/JohanMorales211/api-project.git`
 2. **Construye las imágenes Docker:**  `docker-compose build`
 3. **Inicia los servicios:**  `docker-compose up -d`
 
